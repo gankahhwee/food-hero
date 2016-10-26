@@ -1,0 +1,18 @@
+{
+  "name": "foodHero",
+  "app_id": "",
+  "proxies": [
+    {
+      "path": "/register",
+      "proxyUrl": "http://foodhero.me:8000/register"
+    },
+    {
+      "path": "/login",
+      "proxyUrl": "http://foodhero.me:8000/login"
+    },
+    {
+      "path": "/get-events",
+      "proxyUrl": "http://foodhero.me:8000/get-events"
+    }
+  ]
+}

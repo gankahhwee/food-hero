@@ -1,0 +1,32 @@
+<ion-view view-title="{{event.name}}">
+  <ion-content>
+      
+    <div class="padding">
+      <img ng-src="{{event.img}}" class="full-image">
+    </div>
+      
+    <div class="list">
+
+      <h2 class="item" ng-bind="event.name"></h2>
+        
+      <div class="row">
+          <div class="col text-center">
+            <img src="img/cutlery_green_75.png">
+          </div>
+          <div class="col text-center">
+            <img src="img/portion_green_75.png">
+          </div>
+          <div class="col text-center">
+            <img src="img/hourglass_green_75.png">
+          </div>
+      </div>
+        
+      <div class="item">
+        Address
+        <span class="item-note" ng-bind="event.address"></span>
+      </div>
+
+    </div>
+      
+  </ion-content>
+</ion-view>

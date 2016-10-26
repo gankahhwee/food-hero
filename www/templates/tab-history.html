@@ -1,0 +1,14 @@
+<ion-view view-title="History">
+  <ion-content>
+    <div class="list">
+
+    <a class="item item-thumbnail-left" ui-sref="event({id:event.id})" ng-repeat="event in events">
+      <img ng-src="{{event.img}}">
+      <h2 ng-bind="event.name"></h2>
+      <p>12 Nov 2014, 10.39am</p>
+      <p ng-bind="event.address"></p>
+    </a>
+        
+    </div>
+  </ion-content>
+</ion-view>

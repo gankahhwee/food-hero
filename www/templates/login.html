@@ -1,0 +1,31 @@
+<ion-view view-title="{{appName}}">
+  <ion-content class="padding">
+    <div class="list list-inset">
+      <div class="row">
+        <div class="col"></div>
+        <div class="col col-50"><img class="full-image" src="img/logo.png"></div>
+        <div class="col"></div>
+      </div>
+      <div class="row padding-top">
+        <div class="col"></div>
+        <div class="col col-75"> 
+          <label class="item item-input item-stacked-label">
+            <span class="input-label">Username</span>
+            <input type="text" placeholder="Enter username" ng-model="username">
+          </label>
+          <label class="item item-input item-stacked-label">
+            <span class="input-label">Password</span>
+            <input type="password" placeholder="Enter password" ng-model="password">
+          </label>
+          <button class="button button-full button-positive"  ng-click="login(username, password)">
+            Login
+          </button>
+          <button ui-sref="register" class="button button-clear button-full button-positive">
+            Register
+          </button>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
