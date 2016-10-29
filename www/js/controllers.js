@@ -83,7 +83,8 @@ angular.module('starter.controllers', [])
   $scope.events = Events.all();
 })
 
-.controller('AuthCtrl', function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
+.controller('AuthCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
+    function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
   $scope.appName = "Food Hero";
     
   $scope.register = function(username, email, password){
@@ -108,22 +109,53 @@ angular.module('starter.controllers', [])
       });
   }
   
-  $scope.login = function(username, password){
-      $ionicLoading.show({
-        template: 'Loading...'
-      })
-      AuthService.login(username, password).then(function(result){
-          $ionicLoading.hide();
-          if(result.success){
-              $state.go('tab.map').then(function(){
-                
-              });
-          } else {
-              $ionicPopup.alert({
-                 title: 'Login unsuccessful',
-                 template: result.error
-              });
-          }
-      });
+    $scope.login = function (username, password) {
+        $ionicLoading.show({template: 'Logging in...'});
+
+        AuthService.login(username, password)
+        .then(function () {
+            $state.go('tab.map').then(function () {});
+        }, function (error) {
+            $ionicPopup.alert({
+                title: "Login error",
+                template: error
+            });
+        })
+        .finally(function() {
+            $ionicLoading.hide();
+        });
+    };
+
+    $scope.loginWithFacebook = function () {
+        AuthService.loginFB()
+        .then(function(token) {
+            $ionicLoading.show({template: 'Logging in...'});
+            return AuthService.getFBProfile(token);
+        })
+        .then(AuthService.loginFBServer)
+        .then(function (result) {
+            $state.go('tab.map').then(function () {});
+        }, function (error) {
+            $ionicPopup.alert({
+                title: 'Login error',
+                template: error
+            });
+        })
+        .finally(function() {
+            $ionicLoading.hide();
+        });
+    };
+}])
+
+.controller('ProfileCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
+function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
+    $scope.logout = function() {
+      if (typeof(Storage) != "undefined") {
+          localStorage.removeItem("token");
+      }
+      
+      // to be completed
+      
+      $state.go('login');
   }
-});
+}]);
