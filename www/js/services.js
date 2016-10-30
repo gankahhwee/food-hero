@@ -208,6 +208,65 @@ angular.module('starter.services', [])
           }
         }
       ) 
+    },
+      
+    isUserGoing: function (eventId) {
+        return $http({
+            method: 'POST',
+            url: endpoint + '/is-user-going',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': localStorage.getItem("token")
+            },
+            transformRequest: function (obj) {
+                var str = [];
+                for (var p in obj)
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+            },
+            data: {
+                event_id: eventId,
+                username: localStorage.getItem("username")
+            }
+        }).then(
+            function (response) {
+                if (response.data && response.data.success) {
+                    return {going: response.data.going};
+                } else {
+                    return $q.reject(response.data.error.message);
+                }
+            }
+        )
+    },
+      
+    goingEvent: function (eventId, going) {
+        return $http({
+            method: 'POST',
+            url: endpoint + '/going-event',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': localStorage.getItem("token")
+            },
+            transformRequest: function (obj) {
+                var str = [];
+                for (var p in obj)
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+            },
+            data: {
+                event_id: eventId,
+                going: going,
+                username: localStorage.getItem("username")
+            }
+        }).then(
+            function (response) {
+                if (response.data && response.data.success) {
+                    return;
+                } else {
+                    return $q.reject(response.data.error.message);
+                }
+            }
+        )
     }
   };
 })

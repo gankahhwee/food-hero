@@ -95,13 +95,28 @@ angular.module('starter.controllers', [])
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
       viewData.enableBack = true;
     }); 
-    $ionicLoading.show({
-      template: 'Loading...'
-    })
+    $ionicLoading.show({template: 'Loading...'})
     Events.get($stateParams.id).then(function(data){
-      $ionicLoading.hide();
-      $scope.event = data.event;
+        $scope.event = data.event;
+        return $stateParams.id;
+    }).then(Events.isUserGoing).then(function(data) {
+        $scope.going = data.going;
+    }).catch(function(error) {
+        $ionicPopup.alert({title: 'Loading error', template: error});
+    }).finally(function() {
+        $ionicLoading.hide();
     });
+    
+    $scope.toggleGo = function() {
+        $ionicLoading.show({template: 'Saving...'});
+        Events.goingEvent($stateParams.id, $scope.going?0:1).then(function(data) {
+            $scope.going = !$scope.going;
+        }).catch(function(error) {
+            $ionicPopup.alert({title: 'Saving error', template: error});
+        }).finally(function() {
+            $ionicLoading.hide();
+        });
+    };
 })
 
 .controller('EventsCtrl', function($scope, Events) {
