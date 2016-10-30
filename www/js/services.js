@@ -1,48 +1,34 @@
 angular.module('starter.services', [])
 
 .value('host', 'http://foodhero.me:8000')
-//.value('endpoint', 'http://foodhero.me:8000')
-.value('endpoint', 'http://localhost:8100')
+.value('endpoint', 'http://foodhero.me:8000')
+//.value('endpoint', 'http://localhost:8100/api')
 
-.factory('Location', function($cordovaGeolocation, $q, $timeout){
-  var currentLocation,
-      singaporePlaceId = 'ChIJdZOLiiMR2jERxPWrUs9peIg',
+.factory('Location', function($cordovaGeolocation){
+  var singaporeLatitude = 1.3147268,
+      singaporeLongitude = 103.7069311,
       options = {timeout: 10000, enableHighAccuracy: true},
       geocoder = new google.maps.Geocoder();
   
-  function geocodeAddress(address, callback, errorCallback) {
-    geocoder.geocode({'address': address}, function(results, status) {
-      if (status === 'OK') { if(callback) callback(results);
-      } else { if(errorCallback) errorCallback(); }
+  function geocodeAddress(address, callback) {
+    geocoder.geocode({'address': address + ' Singapore'}, function(results, status) {
+      if (status === 'OK') {
+        callback(results);
+      } else {
+        console.log('Geocode was not successful for the following reason: ' + status);
+      }
     });
   }
-    
-  function reverseGeocode(latlng, callback, errorCallback){
-    geocoder.geocode({'location': latlng}, function(results, status) {
-      if (status === 'OK') { if(callback) callback(results);
-      } else { if(errorCallback) errorCallback(); }
-    });
-  }
-    
   return {
     getCurrentPosition: function(){
-      if(currentLocation){
-        return $q.when(currentLocation);
-      }
       return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-        currentLocation = position;
-        $timeout(function(){
-          currentLocation = undefined;
-        },60000);
-        return currentLocation;
+        return position;
       }, function(error){
-        var message = "Could not get location.";
-        console.log(message);
-        return $q.reject(message);
+        console.log("Could not get location. Return default Singapore location.");
+        //return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
       });
     },
-    geocodeAddress: geocodeAddress,
-    reverseGeocode: reverseGeocode
+    geocodeAddress: geocodeAddress
   }
 })
 
@@ -157,7 +143,7 @@ angular.module('starter.services', [])
       events.splice(events.indexOf(event), 1);
     },
       
-    add: function(data, event){
+    add: function(data){
       return Location.getCurrentPosition().then(function(position){
         data.append("latitude", position.coords.latitude);
         data.append("longitude", position.coords.longitude);
@@ -174,8 +160,6 @@ angular.module('starter.services', [])
         }).then(
           function(response){
             if(response.data && response.data.success){
-                event.id = response.data.id;
-                events.push(event);
                 return response.data;
             }
             return {success:false};
@@ -224,11 +208,70 @@ angular.module('starter.services', [])
           }
         }
       ) 
+    },
+      
+    isUserGoing: function (eventId) {
+        return $http({
+            method: 'POST',
+            url: endpoint + '/is-user-going',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': localStorage.getItem("token")
+            },
+            transformRequest: function (obj) {
+                var str = [];
+                for (var p in obj)
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+            },
+            data: {
+                event_id: eventId,
+                username: localStorage.getItem("username")
+            }
+        }).then(
+            function (response) {
+                if (response.data && response.data.success) {
+                    return {going: response.data.going};
+                } else {
+                    return $q.reject(response.data.error.message);
+                }
+            }
+        )
+    },
+      
+    goingEvent: function (eventId, going) {
+        return $http({
+            method: 'POST',
+            url: endpoint + '/going-event',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': localStorage.getItem("token")
+            },
+            transformRequest: function (obj) {
+                var str = [];
+                for (var p in obj)
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+            },
+            data: {
+                event_id: eventId,
+                going: going,
+                username: localStorage.getItem("username")
+            }
+        }).then(
+            function (response) {
+                if (response.data && response.data.success) {
+                    return;
+                } else {
+                    return $q.reject(response.data.error.message);
+                }
+            }
+        )
     }
   };
 })
 
-.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', function($http, endpoint, $cordovaOauth) {
+.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', function($http, endpoint, $cordovaOauth, $q) {
   var user;
   return {
       

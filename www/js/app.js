@@ -92,6 +92,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   })
 
   .state('event', {
+    cache: false,
     url: '/event/:id',
     templateUrl: 'templates/event.html',
     controller: 'EventCtrl'
