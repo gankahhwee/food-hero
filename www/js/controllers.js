@@ -133,7 +133,27 @@ angular.module('starter.controllers', [])
             return AuthService.getFBProfile(token);
         })
         .then(AuthService.loginFBServer)
-        .then(function (result) {
+        .then(function () {
+            $state.go('tab.map').then(function () {});
+        }, function (error) {
+            $ionicPopup.alert({
+                title: 'Login error',
+                template: error
+            });
+        })
+        .finally(function() {
+            $ionicLoading.hide();
+        });
+    };
+        
+    $scope.loginWithGoogle = function () {
+        AuthService.loginGG()
+        .then(function(params) {
+            $ionicLoading.show({template: 'Logging in...'});
+            return AuthService.getGGAccessToken(params);
+        })
+        .then(AuthService.loginGGServer)
+        .then(function () {
             $state.go('tab.map').then(function () {});
         }, function (error) {
             $ionicPopup.alert({
