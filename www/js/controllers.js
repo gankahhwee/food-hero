@@ -4,12 +4,10 @@ angular.module('starter.controllers', [])
     var authCheck = function(){
       if(!$state.current.disableAuthCheck){
         if(!AuthService.user()){
-          //$state.go('login');
           $location.path('/login');
         }
       } else {
         if(AuthService.user()){
-          //$state.go('login');
           $location.path('/tab/map');
         }
       }
