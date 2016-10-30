@@ -1,34 +1,48 @@
 angular.module('starter.services', [])
 
 .value('host', 'http://foodhero.me:8000')
-.value('endpoint', 'http://foodhero.me:8000')
-//.value('endpoint', 'http://localhost:8100')
+//.value('endpoint', 'http://foodhero.me:8000')
+.value('endpoint', 'http://localhost:8100')
 
-.factory('Location', function($cordovaGeolocation){
-  var singaporeLatitude = 1.3147268,
-      singaporeLongitude = 103.7069311,
+.factory('Location', function($cordovaGeolocation, $q, $timeout){
+  var currentLocation,
+      singaporePlaceId = 'ChIJdZOLiiMR2jERxPWrUs9peIg',
       options = {timeout: 10000, enableHighAccuracy: true},
       geocoder = new google.maps.Geocoder();
   
-  function geocodeAddress(address, callback) {
-    geocoder.geocode({'address': address + ' Singapore'}, function(results, status) {
-      if (status === 'OK') {
-        callback(results);
-      } else {
-        console.log('Geocode was not successful for the following reason: ' + status);
-      }
+  function geocodeAddress(address, callback, errorCallback) {
+    geocoder.geocode({'address': address}, function(results, status) {
+      if (status === 'OK') { if(callback) callback(results);
+      } else { if(errorCallback) errorCallback(); }
     });
   }
+    
+  function reverseGeocode(latlng, callback, errorCallback){
+    geocoder.geocode({'location': latlng}, function(results, status) {
+      if (status === 'OK') { if(callback) callback(results);
+      } else { if(errorCallback) errorCallback(); }
+    });
+  }
+    
   return {
     getCurrentPosition: function(){
+      if(currentLocation){
+        return $q.when(currentLocation);
+      }
       return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-        return position;
+        currentLocation = position;
+        $timeout(function(){
+          currentLocation = undefined;
+        },60000);
+        return currentLocation;
       }, function(error){
-        console.log("Could not get location. Return default Singapore location.");
-        //return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
+        var message = "Could not get location.";
+        console.log(message);
+        return $q.reject(message);
       });
     },
-    geocodeAddress: geocodeAddress
+    geocodeAddress: geocodeAddress,
+    reverseGeocode: reverseGeocode
   }
 })
 
@@ -143,7 +157,7 @@ angular.module('starter.services', [])
       events.splice(events.indexOf(event), 1);
     },
       
-    add: function(data){
+    add: function(data, event){
       return Location.getCurrentPosition().then(function(position){
         data.append("latitude", position.coords.latitude);
         data.append("longitude", position.coords.longitude);
@@ -160,6 +174,8 @@ angular.module('starter.services', [])
         }).then(
           function(response){
             if(response.data && response.data.success){
+                event.id = response.data.id;
+                events.push(event);
                 return response.data;
             }
             return {success:false};
@@ -212,7 +228,7 @@ angular.module('starter.services', [])
   };
 })
 
-.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', function($http, endpoint, $cordovaOauth, $q) {
+.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', function($http, endpoint, $cordovaOauth) {
   var user;
   return {
       

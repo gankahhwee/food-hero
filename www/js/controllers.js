@@ -1,15 +1,20 @@
 angular.module('starter.controllers', [])
 
-.controller('MainCtrl', function($rootScope, $state, $location, AuthService) {
+.controller('MainCtrl', function($rootScope, $state, $location, AuthService, $q) {
     var authCheck = function(){
       if(!$state.current.disableAuthCheck){
         if(!AuthService.user()){
           //$state.go('login');
           $location.path('/login');
         }
+      } else {
+        if(AuthService.user()){
+          //$state.go('login');
+          $location.path('/tab/map');
+        }
       }
     }
-    $rootScope.$on("$locationChangeSuccess", authCheck);
+    $rootScope.$on("$stateChangeSuccess", authCheck);
     authCheck();
 })
 
@@ -20,7 +25,7 @@ angular.module('starter.controllers', [])
       events, 
       init;
     
-  var addMarker = function(latLng, event){
+  var addEventMarker = function(latLng, event){
     var marker = new google.maps.Marker({
       map: $scope.map,
       animation: google.maps.Animation.DROP,
@@ -43,47 +48,71 @@ angular.module('starter.controllers', [])
       });
     }
   }
- 
-  Location.getCurrentPosition().then(function(position){
   
-    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-
+  var initMap = function(targetLatLng){
     var mapOptions = {
-      center: latLng,
+      center: targetLatLng,
       zoom: 16,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
     $scope.map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-    var initMarkers = function(){
-      if(markers.length > 0) return;
-      //addMarker(latLng);
-      //var GeoMarker = new GeolocationMarker($scope.map);
-    }
-
-    var loadedListener = $scope.map.addListener('idle',function(){
-      initMarkers();
+    var marker = new google.maps.Marker({
+      map: $scope.map,
+      position: targetLatLng,
+      icon: 'img/blue-circle.png'
     });
       
-    Events.find(position.coords.latitude, position.coords.longitude, 30000, true).then(
+    Events.find(targetLatLng.lat(), targetLatLng.lng(), 30000, true).then(
       function(data){
         events = data.events;
         for(var i=0;i<data.events.length;i++){
           var event = data.events[i];
-          var content = '<h4>'+event.roomname+'</h4>'+
+          /*var content = '<h4>'+event.roomname+'</h4>'+
                 '<p>Ending at '+event.endtime+'</p>'+
                 '<p>'+event.distance+' km away</p>'+
                 '<p>'+event.location+'</p>'+
                 '<p>Type: '+event.foodtype+'</p>'+
                 '<p>Servings: '+event.servings+'</p>'+
                 '<p>By @'+event.username+'</p>'+
-                '<p><a href="#/event/'+event.id+'">Read more</a></p>';
+                '<p><a href="#/event/'+event.id+'">Read more</a></p>';*/
           var latLng = new google.maps.LatLng(data.events[i].latitude, data.events[i].longitude);
-          addMarker(latLng, event);
+          addEventMarker(latLng, event);
         }
       }
-    ); 
+    );
+  }
+ 
+  Location.getCurrentPosition().then(function(position){
+    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    initMap(latLng);
+    
+  }, function(message){
+    $scope.showPopup = function() {
+      $scope.data = {};
+      var myPopup = $ionicPopup.show({
+        title: 'Enter your location',
+        subTitle: 'Oooops! We are not able to retrieve your current location. Can you let us know where you are?',
+        template: '<input type="text" ng-model="data.location" placeholder="Address or building name">',
+        scope: $scope,
+        buttons: [
+          { text: 'Try again' },
+          {
+            text: 'Use the location above',
+            type: 'button-positive',
+            onTap: function(e) {
+              if (!$scope.data.location) {
+                e.preventDefault();
+              } else {
+                Location.geocodeAddress($scope.data.location, function(){
+                  initMap(results[0].geometry.location);
+                });
+              }
+            }
+          }
+        ]
+      });
+     };
   })
   
   $scope.shareFood = function(){
@@ -108,10 +137,19 @@ angular.module('starter.controllers', [])
   //$scope.events = Events.all();
 })
 
-.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location) {
+.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout) {
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
+  $scope.event = {
+      roomname: 'Fried rice and chicken nuggets',
+      location: '420 Canberra Road',
+      contact: '93374226',
+      foodtype: 'Halal',
+      servings: '8 people',
+      endtime: '2016-10-31 23:59',
+      additionalInfo: 'Please bring your own containers. Thanks'
+  };
   Location.getCurrentPosition().then(function(position){
     var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
@@ -122,6 +160,11 @@ angular.module('starter.controllers', [])
     var marker = new google.maps.Marker({
       map: map,
       position: latLng
+    });
+    Location.reverseGeocode(latLng, function(results){
+      $timeout(function(){
+        $scope.event.location = results[0].formatted_address;
+      });
     });
       
     $scope.geocode = function(address){
@@ -136,16 +179,9 @@ angular.module('starter.controllers', [])
         });
       });
     };
+  }, function(message){
+      alert(message);
   });
-  $scope.event = {
-      roomname: 'Fried rice and chicken nuggets',
-      location: '420 Canberra Road',
-      contact: '93374226',
-      foodtype: 'Halal',
-      servings: '8 people',
-      endtime: '2016-10-31 23:59',
-      additionalInfo: 'Please bring your own containers. Thanks'
-  };
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
@@ -159,7 +195,7 @@ angular.module('starter.controllers', [])
     for(attr in $scope.event){
       data.append(attr, $scope.event[attr]);
     }
-    Events.add(data).then(function(data){
+    Events.add(data, $scope.event).then(function(data){
       $ionicLoading.hide();
       if(data.id){
         $location.path("/event/"+data.id);
