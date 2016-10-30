@@ -196,10 +196,11 @@ angular.module('starter.controllers', [])
         .then(function () {
             $state.go('tab.map').then(function () {});
         }, function (error) {
-            $ionicPopup.alert({
-                title: 'Login error',
-                template: error
-            });
+            if (error != 'canceled')
+                $ionicPopup.alert({
+                    title: 'Login error',
+                    template: error
+                });
         })
         .finally(function() {
             $ionicLoading.hide();
@@ -216,10 +217,11 @@ angular.module('starter.controllers', [])
         .then(function () {
             $state.go('tab.map').then(function () {});
         }, function (error) {
-            $ionicPopup.alert({
-                title: 'Login error',
-                template: error
-            });
+            if (error != 'canceled')
+                $ionicPopup.alert({
+                    title: 'Login error',
+                    template: error
+                });
         })
         .finally(function() {
             $ionicLoading.hide();

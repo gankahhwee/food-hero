@@ -280,9 +280,14 @@ angular.module('starter.services', [])
      */
     loginFB: function() {
         return $cordovaOauth.facebook("1759718310929584", ["email"])
-            .then(function (response) {
-                return response.access_token;
-            });
+        .then(function (response) {
+            return response.access_token;
+        }, function(error) {
+            if (error == 'The sign in flow was canceled')
+                return $q.reject('canceled');
+            else
+                return $q.reject(error);
+        });
     },
 
     /*
@@ -330,7 +335,7 @@ angular.module('starter.services', [])
               str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
               return str.join("&");
             },
-            data: {token:response.token, user_id:response.user_id, third_party_id:response.third_party_id}
+            data: {token:params.token, user_id:params.user_id, third_party_id:params.third_party_id}
         }).then(function(response){
             if (response.data == "unauthorized"){
                 return $q.reject('Unauthorized');
@@ -346,8 +351,12 @@ angular.module('starter.services', [])
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }
-            }
-        );
+            }, function(response) {
+                if (!response.data)
+                  return $q.reject('Server error');
+                else
+                  return $q.reject(response);
+        });
     },
       
     /*
@@ -370,7 +379,10 @@ angular.module('starter.services', [])
             deferred.resolve(
                 {email:response.email,idToken:response.idToken,serverAuthCode:response.serverAuthCode});
         }, function (msg) {
-            deferred.reject(msg);
+            if (msg == '12501')
+                deferred.reject('canceled');
+            else
+                deferred.reject(msg);
         });
         
         return deferred.promise;
@@ -455,8 +467,12 @@ angular.module('starter.services', [])
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }
-            }
-        );
+            }, function(response) {
+                if (!response.data)
+                  return $q.reject('Server error');
+                else
+                  return $q.reject(response);
+        });
     },
       
     logoutGG: function() {
