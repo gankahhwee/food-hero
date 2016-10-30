@@ -114,7 +114,7 @@ angular.module('starter.controllers', [])
   }); 
   Location.getCurrentPosition().then(function(position){
     var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-    var map = new google.maps.Map(document.getElementById("map"), {
+    var map = new google.maps.Map(document.getElementById("event-post-map"), {
       center: latLng,
       zoom: 17,
       mapTypeId: google.maps.MapTypeId.ROADMAP

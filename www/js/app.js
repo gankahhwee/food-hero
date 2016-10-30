@@ -85,6 +85,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   })
 
   .state('post', {
+    cache: false,
     url: '/post', 
     templateUrl: 'templates/event-post.html',
     controller: 'PostEventCtrl'
