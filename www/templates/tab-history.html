@@ -3,10 +3,10 @@
     <div class="list">
 
     <a class="item item-thumbnail-left" ui-sref="event({id:event.id})" ng-repeat="event in events">
-      <img ng-src="{{event.img}}">
-      <h2 ng-bind="event.name"></h2>
-      <p>12 Nov 2014, 10.39am</p>
-      <p ng-bind="event.address"></p>
+      <img ng-src="{{event.images[0] || 'img/logo.png'}}">
+      <h2 ng-bind="event.roomname"></h2>
+      <p ng-bind="event.location"></p>
+      <p ng-bind="event.endtime"></p>
     </a>
         
     </div>

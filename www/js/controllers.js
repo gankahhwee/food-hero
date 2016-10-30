@@ -16,7 +16,8 @@ angular.module('starter.controllers', [])
     authCheck();
 })
 
-.controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout) {
+.controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout, $ionicLoading, $ionicPopup) {
+  $ionicLoading.show({template: 'Loading...'});
   var options = {timeout: 10000, enableHighAccuracy: true},
       markers = [],
       infoWindows = [],
@@ -63,6 +64,7 @@ angular.module('starter.controllers', [])
       
     Events.find(targetLatLng.lat(), targetLatLng.lng(), 30000, true).then(
       function(data){
+        $ionicLoading.hide();
         events = data.events;
         for(var i=0;i<data.events.length;i++){
           var event = data.events[i];
@@ -147,7 +149,9 @@ angular.module('starter.controllers', [])
 })
 
 .controller('EventsCtrl', function($scope, Events) {
-  //$scope.events = Events.all();
+  Events.getGoingEvents().then(function(events){
+      $scope.events = events;
+  });
 })
 
 .controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout) {
