@@ -83,6 +83,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
   })
 
+  .state('post', {
+    url: '/post', 
+    templateUrl: 'templates/event-post.html',
+    controller: 'PostEventCtrl'
+  })
+
   .state('event', {
     url: '/event/:id',
     templateUrl: 'templates/event.html',

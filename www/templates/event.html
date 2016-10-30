@@ -1,29 +1,42 @@
-<ion-view view-title="{{event.name}}">
+<ion-view view-title="Available meals">
   <ion-content>
       
-    <div class="padding">
-      <img ng-src="{{event.img}}" class="full-image">
+    <div ng-repeat="img in event.images">
+      <img ng-src="{{img}}" class="full-image">
     </div>
       
     <div class="list">
 
-      <h2 class="item" ng-bind="event.name"></h2>
+      <div  class="item">
+        <h2 ng-bind="event.roomname"></h2>
+      </div>
         
       <div class="row">
           <div class="col text-center">
-            <img src="img/cutlery_green_75.png">
+            <img src="img/cutlery_green_75.png" width="50">
+            <div ng-bind="event.foodtype"></div>
           </div>
           <div class="col text-center">
-            <img src="img/portion_green_75.png">
+            <img src="img/portion_green_75.png" width="50">
+            <div ng-bind="event.servings"></div>
           </div>
           <div class="col text-center">
-            <img src="img/hourglass_green_75.png">
+            <img src="img/hourglass_green_75.png" width="50">
+            <div ng-bind="event.timeLeftDisplay"></div>
           </div>
       </div>
         
       <div class="item">
-        Address
-        <span class="item-note" ng-bind="event.address"></span>
+          <p class="subdue" ng-show="event.distance">{{event.distance}} km away</p>
+          <h3 ng-bind="event.location"></h3>
+          <p>
+            Hosted by: {{event.username}} 
+            <a ng-show="event.contact" ng-href="{{'tel:'+event.contact}}">({{event.contact}})</a>
+          </p>
+      </div>
+        
+      <div class="item">
+          <p ng-bind="event.additionalInfo"></p>
       </div>
 
     </div>

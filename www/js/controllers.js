@@ -13,36 +13,44 @@ angular.module('starter.controllers', [])
     authCheck();
 })
 
-.controller('MapCtrl', function($scope, $state, $cordovaGeolocation, Events) {
+.controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout) {
   var options = {timeout: 10000, enableHighAccuracy: true},
-      markers = [], 
+      markers = [],
+      infoWindows = [],
       events, 
       init;
     
-  var addMarker = function(latLng){
-      var marker = new google.maps.Marker({
-        map: $scope.map,
-        animation: google.maps.Animation.DROP,
-        position: latLng
-      });   
-      markers.push(marker);
+  var addMarker = function(latLng, event){
+    var marker = new google.maps.Marker({
+      map: $scope.map,
+      animation: google.maps.Animation.DROP,
+      position: latLng
+    });   
+    markers.push(marker);
 
-      var infoWindow = new google.maps.InfoWindow({
-        content: '<img class="full-image" src="img/adam.jpg"><h4>Climate Seminar</h4><p>12 Nov 2014, 10.39am</p><p>420 Canberra Road, Singapore 750420</p><p><a href="#">Read more</a></p>'
-      });
+    /*var infoWindow = new google.maps.InfoWindow({content: content});
+    infoWindows.push(infoWindow);*/
 
+    if(event){
       marker.addListener('click', function () {
-        infoWindow.open($scope.map, marker);
+        /*for(var i=0;i<infoWindows.length;i++){
+          infoWindows[i].close();
+        }
+        infoWindow.open($scope.map, marker);*/
+        $timeout(function(){
+          $location.path("/event/"+event.id);
+        });
       });
+    }
   }
  
-  $cordovaGeolocation.getCurrentPosition(options).then(function(position){
+  Location.getCurrentPosition().then(function(position){
   
-    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    var latLng = new google.maps.LatLng(position.lat, position.lng);
 
     var mapOptions = {
       center: latLng,
-      zoom: 15,
+      zoom: position.zoom,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
@@ -50,37 +58,74 @@ angular.module('starter.controllers', [])
 
     var initMarkers = function(){
       if(markers.length > 0) return;
-      addMarker(latLng);
+      //addMarker(latLng);
+      //var GeoMarker = new GeolocationMarker($scope.map);
     }
 
     var loadedListener = $scope.map.addListener('idle',function(){
       initMarkers();
     });
       
-    Events.find(position.coords.latitude, position.coords.longitude, 30000).then(
+    Events.find(position.lat, position.lng, 30000, position.sucess).then(
       function(data){
         events = data.events;
         for(var i=0;i<data.events.length;i++){
+          var event = data.events[i];
+          var content = '<h4>'+event.roomname+'</h4>'+
+                '<p>Ending at '+event.endtime+'</p>'+
+                '<p>'+event.distance+' km away</p>'+
+                '<p>'+event.location+'</p>'+
+                '<p>Type: '+event.foodtype+'</p>'+
+                '<p>Servings: '+event.servings+'</p>'+
+                '<p>By @'+event.username+'</p>'+
+                '<p><a href="#/event/'+event.id+'">Read more</a></p>';
           var latLng = new google.maps.LatLng(data.events[i].latitude, data.events[i].longitude);
-          addMarker(latLng);
+          addMarker(latLng, event);
         }
       }
-    );
- 
-  }, function(error){
-    console.log("Could not get location");
-  });
+    ); 
+  })
+  
+  $scope.shareFood = function(){
+    $location.path("/post");
+  }
 })
 
-.controller('EventCtrl', function($scope, $stateParams, Events) {
+.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading) {
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
       viewData.enableBack = true;
     }); 
-    $scope.event = Events.get($stateParams.id);
+    $ionicLoading.show({
+      template: 'Loading...'
+    })
+    Events.get($stateParams.id).then(function(data){
+      $ionicLoading.hide();
+      $scope.event = data.event;
+    });
 })
 
 .controller('EventsCtrl', function($scope, Events) {
-  $scope.events = Events.all();
+  //$scope.events = Events.all();
+})
+
+.controller('PostEventCtrl', function($scope, Events, $cordovaDatePicker) {
+  var options = {
+    date: new Date(),
+    mode: 'date', // or 'time'
+    minDate: new Date(),
+    allowOldDates: true,
+    allowFutureDates: false,
+    doneButtonLabel: 'DONE',
+    doneButtonColor: '#F2F3F4',
+    cancelButtonLabel: 'CANCEL',
+    cancelButtonColor: '#000000'
+  };
+
+  $scope.changeEndtime = function(){
+    $cordovaDatePicker.show(options).then(function(date){
+        alert(date);
+    });
+  };
 })
 
 .controller('AuthCtrl', function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
