@@ -128,7 +128,8 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('AuthCtrl', function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
+.controller('AuthCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
+    function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
   $scope.appName = "Food Hero";
     
   $scope.register = function(username, email, password){
