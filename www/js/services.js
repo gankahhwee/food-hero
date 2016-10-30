@@ -1,5 +1,6 @@
 angular.module('starter.services', [])
 
+.value('host', 'http://foodhero.me:8000')
 .value('endpoint', 'http://foodhero.me:8000')
 //.value('endpoint', 'http://localhost:8100')
 
@@ -248,8 +249,6 @@ angular.module('starter.services', [])
         data: {username:username,password:password}
       }).then(
         function(response){
-            console.log('login response');
-            console.log(JSON.stringify(response));
           if(response.data == "unauthorized"){
               return $q.reject('Unauthorized');
           }
@@ -266,9 +265,6 @@ angular.module('starter.services', [])
           }
         },
           function(response) {
-              console.log('login error');
-              console.log(JSON.stringify(response));
-              
               return $q.reject(response.data ? response.data.error : 'Server error');
           }
       )
@@ -285,8 +281,6 @@ angular.module('starter.services', [])
     loginFB: function() {
         return $cordovaOauth.facebook("1759718310929584", ["email"])
             .then(function (response) {
-                console.log('$cordovaOauth response:');
-                console.log(JSON.stringify(response));
                 return response.access_token;
             });
     },
@@ -305,16 +299,12 @@ angular.module('starter.services', [])
     getFBProfile: function(token) {
         return $http.get("https://graph.facebook.com/v2.8/me", { params: { access_token: token, fields: "id,third_party_id", format: "json" }})
         .then(function(response) {
-            console.log('Get fb profile response:');
-            console.log(JSON.stringify(response));
             return {
                 token: token,
                 user_id: response.data.id,
                 third_party_id: response.data.third_party_id
             };
         }, function(response) {
-            console.log('Get fb profile error:');
-            console.log(JSON.stringify(response));
             return $q.reject(response.data.error.message);
         });
     },
@@ -342,8 +332,6 @@ angular.module('starter.services', [])
             },
             data: {token:response.token, user_id:response.user_id, third_party_id:response.third_party_id}
         }).then(function(response){
-            console.log('loginServer response');
-            console.log(JSON.stringify(response));
             if (response.data == "unauthorized"){
                 return $q.reject('Unauthorized');
             }
@@ -379,13 +367,9 @@ angular.module('starter.services', [])
             'webClientId': '1065984441784-nmgooca8hn1l67320mj5oug03nkjsgoq.apps.googleusercontent.com',
             'offline': true,
         }, function (response) {
-            console.log('loginGG response');
-            console.log(JSON.stringify(response)); // do something useful instead of alerting
             deferred.resolve(
                 {email:response.email,idToken:response.idToken,serverAuthCode:response.serverAuthCode});
         }, function (msg) {
-            console.log('loginGG error');
-            console.log('error: ' + msg);
             deferred.reject(msg);
         });
         
@@ -428,12 +412,8 @@ angular.module('starter.services', [])
             }
         })
         .then(function(response) {
-            console.log('Get gg access token:');
-            console.log(JSON.stringify(response));
             return {email:params.email,idToken:params.idToken,accessToken:response.data.access_token};
         }, function(response) {
-            console.log('Get gg profile error:');
-            console.log(JSON.stringify(response));
             return $q.reject(response.data.error_description);
         });
     },
@@ -449,8 +429,6 @@ angular.module('starter.services', [])
      *     - err: error message
      */
     loginGGServer: function(params) {
-        console.log('loginGGServer');
-        console.log(JSON.stringify(params));
         return $http({
             method: 'POST',
             url: endpoint+'/loginGG',
@@ -463,8 +441,6 @@ angular.module('starter.services', [])
             },
             data: {email:params.email, token:params.idToken, access_token:params.accessToken}
         }).then(function(response){
-            console.log('loginServer response');
-            console.log(JSON.stringify(response));
             if (response.data == "unauthorized"){
                 return $q.reject('Unauthorized');
             }
@@ -486,7 +462,7 @@ angular.module('starter.services', [])
     logoutGG: function() {
         var deferred = $q.defer;
         window.plugins.googleplus.logout(function(msg) {
-            deffered.resolve(msg);
+            deferred.resolve(msg);
         });
         return deferred.promise;
     },
