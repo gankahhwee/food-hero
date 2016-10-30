@@ -6,17 +6,28 @@ angular.module('starter.services', [])
 .factory('Location', function($cordovaGeolocation){
   var singaporeLatitude = 1.3147268,
       singaporeLongitude = 103.7069311,
-      options = {timeout: 10000, enableHighAccuracy: true};
+      options = {timeout: 10000, enableHighAccuracy: true},
+      geocoder = new google.maps.Geocoder();
   
+  function geocodeAddress(address, callback) {
+    geocoder.geocode({'address': address + ' Singapore'}, function(results, status) {
+      if (status === 'OK') {
+        callback(results);
+      } else {
+        console.log('Geocode was not successful for the following reason: ' + status);
+      }
+    });
+  }
   return {
     getCurrentPosition: function(){
       return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-        return {latitude:position.coords.latitude, longitude:position.coords.longitude, zoom:15, success:true};
+        return position;
       }, function(error){
         console.log("Could not get location. Return default Singapore location.");
-        return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
+        //return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
       });
-    }
+    },
+    geocodeAddress: geocodeAddress
   }
 })
 
@@ -133,8 +144,8 @@ angular.module('starter.services', [])
       
     add: function(data){
       return Location.getCurrentPosition().then(function(position){
-        data.append("latitude", position.latitude);
-        data.append("longitude", position.longitude);
+        data.append("latitude", position.coords.latitude);
+        data.append("longitude", position.coords.longitude);
         data.append("username", localStorage.getItem("username"));
             
         return $http({
@@ -190,7 +201,7 @@ angular.module('starter.services', [])
         function(response){
           if(response.data && response.data.success && response.data.event){
             initEvent(response.data.event);
-            initEventImages(events[i]);
+            initEventImages(response.data.event);
             events.push(response.data.event);
             return {success:true, event:response.data.event};
           }
