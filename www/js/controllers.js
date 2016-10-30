@@ -88,6 +88,7 @@ angular.module('starter.controllers', [])
     initMap(latLng);
     
   }, function(message){
+    $ionicLoading.hide();
     $scope.showPopup = function() {
       $scope.data = {};
       var myPopup = $ionicPopup.show({
@@ -309,13 +310,13 @@ angular.module('starter.controllers', [])
 
 .controller('ProfileCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state', '$q',
 function($scope, AuthService, $ionicLoading, $ionicPopup, $state, $q) {
+    $scope.user = AuthService.user();
+    
     $scope.logout = function() {
       if (typeof(Storage) != "undefined") {
           localStorage.removeItem("token");
       }
-      
       AuthService.logoutGG();
-        
       // to be completed
       
       $state.go('login');
