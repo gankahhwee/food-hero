@@ -140,13 +140,13 @@ angular.module('starter.controllers', [])
     viewData.enableBack = true;
   }); 
   $scope.event = {
-      roomname: 'Fried rice and chicken nuggets',
+      /*roomname: 'Fried rice and chicken nuggets',
       location: '420 Canberra Road',
       contact: '93374226',
       foodtype: 'Halal',
       servings: '8 people',
       endtime: '2016-10-31 23:59',
-      additionalInfo: 'Please bring your own containers. Thanks'
+      additionalInfo: 'Please bring your own containers. Thanks'*/
   };
   Location.getCurrentPosition().then(function(position){
     var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -288,8 +288,8 @@ angular.module('starter.controllers', [])
     };
 }])
 
-.controller('ProfileCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
-function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
+.controller('ProfileCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state', '$q',
+function($scope, AuthService, $ionicLoading, $ionicPopup, $state, $q) {
     $scope.logout = function() {
       if (typeof(Storage) != "undefined") {
           localStorage.removeItem("token");
