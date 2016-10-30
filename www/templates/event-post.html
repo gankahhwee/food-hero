@@ -1,0 +1,45 @@
+<ion-view view-title="Share food!">
+  <ion-content>
+    <div class="list">
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="roomname">Title</span>
+        <input type="text" name="roomname" ng-model="event.roomname" placeholder="Enter title">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="location">Location</span>
+        <input type="text" name="location" ng-model="event.location" placeholder="Where is the food?">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="contact">Contact / Email</span>
+        <input name="contact" type="text" ng-model="event.contact" placeholder="How can you be contacted?">
+      </label>
+        
+      <div class="item item-divider"></div>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label" for="foodtype">Photo</span>
+          <input type="file" name="allImages" ng-files="getTheFiles($files)"> 
+        </label>
+      <div class="item item-divider"></div>
+        
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="foodtype">Food Type</span>
+        <input type="text" name="foodtype" ng-model="event.foodtype" placeholder="Is it vegetarian, halal or?">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="servings">Servings</span>
+        <input name="servings" type="text" ng-model="event.servings" placeholder="For how many people?">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="endtime">Ends at</span>
+        <input name="endtime" type="text" ng-model="event.endtime" placeholder="When is it available until? (YYYY-MM-DD HH:MM)">
+      </label>
+      <label class="item item-input item-stacked-label">
+        <span class="input-label" for="additionalInfo">Additional information</span>
+        <input name="additionalInfo" type="text" ng-model="event.additionalInfo" placeholder="Anything else that you want to let others know?">
+      </label>
+      <button class="button button-full button-positive" ng-click="post()">
+        Save
+      </button>
+    </div>
+  </ion-content>
+</ion-view>

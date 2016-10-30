@@ -3,39 +3,100 @@ angular.module('starter.services', [])
 .value('endpoint', 'http://foodhero.me:8000')
 //.value('endpoint', 'http://localhost:8100')
 
-.factory('Events', function($http, endpoint) {
-  // Might use a resource here that returns a JSON array
+.factory('Location', function($cordovaGeolocation){
+  var singaporeLatitude = 1.3147268,
+      singaporeLongitude = 103.7069311,
+      options = {timeout: 10000, enableHighAccuracy: true};
+  
+  return {
+    getCurrentPosition: function(){
+      return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
+        return {latitude:position.coords.latitude, longitude:position.coords.longitude, zoom:15, success:true};
+      }, function(error){
+        console.log("Could not get location. Return default Singapore location.");
+        return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
+      });
+    }
+  }
+})
 
-  // Some fake testing data
-  var events = [{
-    id: 0,
-    name: 'Ben Sparrow',
-    address: 'You on your way?',
-    img: 'img/ben.png',
-    latitude: 1.452561,
-    longitude: 103.8166473
-  }, {
-    id: 1,
-    name: 'Max Lynx',
-    address: 'Hey, it\'s me',
-    img: 'img/max.png',
-    latitude: 1.4531618,
-    longitude: 103.817999
-  }, {
-    id: 2,
-    name: 'Adam Bradleyson',
-    address: 'I should buy a boat',
-    img: 'img/adam.jpg',
-    latitude: 1.451864,
-    longitude: 103.8186213
-  }];
+
+.factory('Events', function($http, endpoint, $q, host, $interval, Location) {
+
+  var events;
+    
+  $interval(function(){
+    if(events){
+      for(var i=0;i<events.length;i++){
+        initTimeLeft(events[i]);
+      }
+    }
+  },60000);
+    
+  var formatTimeLeftText = function(timeLeft, suffix){
+    timeLeft = Math.floor(timeLeft);
+    if(timeLeft < 1) return "";
+    var txt = Math.floor(timeLeft) + " " + suffix;
+    if(timeLeft > 1){
+      txt += "s";
+    }
+    return txt + " ";
+  }
+    
+  var initTimeLeft = function(event){
+    var timeLeft = event.timeLeft = (event.endtime.getTime() - new Date().getTime()); // in miliseconds
+    var minsLeft = timeLeft / 1000 / 60;
+    var hoursLeft = minsLeft / 60;
+    var daysLeft = hoursLeft / 24;
+    event.timeLeftDisplay = formatTimeLeftText(daysLeft, "day") + 
+        formatTimeLeftText(hoursLeft % 24, "hour") + 
+        formatTimeLeftText(minsLeft % 60, "min");
+  }
+    
+  var initEvent = function(event){
+    // distance
+    if(event.distance){
+        event.distance = Math.round(event.distance * 1000)/1000;
+    }
+      
+    // endtime
+    event.endtime = new Date(event.endtime);
+    initTimeLeft(event);
+  }
+  
+  var initEventImages = function(event){
+    if(event.images) {
+        return;
+    }
+    // images
+    $http({
+      method: 'POST',
+      url: endpoint+'/get-all-images',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': localStorage.getItem("token")
+      },
+      transformRequest: function(obj) {
+        var str = [];
+        for(var p in obj)
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+        return str.join("&");
+      },
+      data: {roomname:event.roomname}
+    }).then(
+      function(response){
+        if(response.data && response.data.imgNames){
+          for(var i=0;i<response.data.imgNames.length;i++){
+            response.data.imgNames[i] = host + "/images/" + response.data.imgNames[i].filename; 
+          }
+          event.images = response.data.imgNames;
+        }
+      }
+    ) 
+  }
 
   return {
-    all: function() {
-      return events;
-    },
-      
-    find: function(latitude,longitude,radius){
+    find: function(latitude,longitude,radius,currentLocation){
       return $http({
         method: 'POST',
         url: endpoint+'/get-events',
@@ -52,7 +113,16 @@ angular.module('starter.services', [])
         data: {latitude:latitude,longitude:longitude,radius:radius}
       }).then(
         function(response){
-          return {success:true, events:events};
+          if(response.data && response.data.success && response.data.events){
+            events = response.data.events;
+            for(var i=0;i<events.length;i++){
+              initEvent(events[i]);
+              if(!currentLocation){
+                event.distance = undefined;
+              }
+            }
+            return {success:true, events:events};
+          }
         }
       )  
     },
@@ -61,13 +131,71 @@ angular.module('starter.services', [])
       events.splice(events.indexOf(event), 1);
     },
       
+    add: function(data){
+      return Location.getCurrentPosition().then(function(position){
+        data.append("latitude", position.latitude);
+        data.append("longitude", position.longitude);
+        data.append("username", localStorage.getItem("username"));
+            
+        return $http({
+          method: 'POST',
+          url: endpoint+'/post-events',
+          headers: {
+            'Content-Type': undefined,
+            'Authorization': localStorage.getItem("token")
+          },
+          data: data
+        }).then(
+          function(response){
+            if(response.data && response.data.success){
+                return response.data;
+            }
+            return {success:false};
+          },
+          function(response){
+            return {success:false};
+          }
+        ) 
+      })
+    },
+      
     get: function(eventId) {
-      for (var i = 0; i < events.length; i++) {
-        if (events[i].id === parseInt(eventId)) {
-          return events[i];
+      if(events){
+        //find from cache first
+        for (var i = 0; i < events.length; i++) {
+          if (events[i].id === parseInt(eventId)) {
+            initEventImages(events[i]);
+            return $q.when({success:true, event:events[i]});
+          }
         }
+      } else {
+        events = [];
       }
-      return null;
+      //can't find from cache, call API to retrieve the data
+      return $http({
+        method: 'POST',
+        url: endpoint+'/get-event',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': localStorage.getItem("token")
+        },
+        transformRequest: function(obj) {
+          var str = [];
+          for(var p in obj)
+          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          return str.join("&");
+        },
+        data: {event_id:eventId}
+      }).then(
+        function(response){
+          if(response.data && response.data.success && response.data.event){
+            initEvent(response.data.event);
+            initEventImages(events[i]);
+            events.push(response.data.event);
+            return {success:true, event:response.data.event};
+          }
+        }
+      ) 
     }
   };
 })

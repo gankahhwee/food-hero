@@ -13,6 +13,18 @@
     {
       "path": "/get-events",
       "proxyUrl": "http://foodhero.me:8000/get-events"
+    },
+    {
+      "path": "/get-event",
+      "proxyUrl": "http://foodhero.me:8000/get-event"
+    },
+    {
+      "path": "/get-all-images",
+      "proxyUrl": "http://foodhero.me:8000/get-all-images"
+    },
+    {
+      "path": "/post-events",
+      "proxyUrl": "http://foodhero.me:8000/post-events"
     }
   ]
 }

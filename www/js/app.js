@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova', 'ngCordovaOauth'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'starter.directives', 'ngCordova', 'ngCordovaOauth'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -82,6 +82,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         controller: 'EventsCtrl'
       }
     }
+  })
+
+  .state('post', {
+    url: '/post', 
+    templateUrl: 'templates/event-post.html',
+    controller: 'PostEventCtrl'
   })
 
   .state('event', {
