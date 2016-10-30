@@ -5,7 +5,7 @@
       <img ng-src="{{img}}" class="full-image">
     </div>
       
-    <div class="list">
+    <div class="list" ng-if="event">
 
       <div  class="item">
         <h2 ng-bind="event.roomname"></h2>
@@ -31,13 +31,16 @@
           <h3 ng-bind="event.location"></h3>
           <p>
             Hosted by: {{event.username}} 
-            <a ng-show="event.contact" ng-href="{{'tel:'+event.contact}}">({{event.contact}})</a>
+            <!--<a ng-show="event.contact" ng-href="{{'tel:'+event.contact}}">({{event.contact}})</a>-->
           </p>
+          <p class="subdue" ng-class="event.contact"></p>
       </div>
         
       <div class="item">
           <p ng-bind="event.additionalInfo"></p>
       </div>
+        
+      <div map="{latitude:event.latitude,longitude:event.longitude}"></div>
 
     </div>
       

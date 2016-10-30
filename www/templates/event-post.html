@@ -1,14 +1,17 @@
 <ion-view view-title="Share food!">
-  <ion-content>
+  <ion-content ng-init="currentPosition=true">
     <div class="list">
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="roomname">Title</span>
         <input type="text" name="roomname" ng-model="event.roomname" placeholder="Enter title">
       </label>
-      <label class="item item-input item-stacked-label">
-        <span class="input-label" for="location">Location</span>
-        <input type="text" name="location" ng-model="event.location" placeholder="Where is the food?">
+      <div class="item item-divider">Location</div>
+      <!--<ion-checkbox ng-model="currentPosition" ng-change="checkLocation(currentPosition)">My Current Position</ion-checkbox>-->
+      <label class="item item-input">
+        <input type="text" name="location" ng-model="event.location" placeholder="Address or building name"
+               ng-enter="geocode(event.location)" ng-blur="geocode(event.location)">
       </label>
+      <div id="map"></div>
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="contact">Contact / Email</span>
         <input name="contact" type="text" ng-model="event.contact" placeholder="How can you be contacted?">

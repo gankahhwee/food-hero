@@ -46,11 +46,11 @@ angular.module('starter.controllers', [])
  
   Location.getCurrentPosition().then(function(position){
   
-    var latLng = new google.maps.LatLng(position.latitude, position.longitude);
+    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
     var mapOptions = {
       center: latLng,
-      zoom: position.zoom,
+      zoom: 16,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
@@ -66,7 +66,7 @@ angular.module('starter.controllers', [])
       initMarkers();
     });
       
-    Events.find(position.latitude, position.longitude, 30000, position.sucess).then(
+    Events.find(position.coords.latitude, position.coords.longitude, 30000, true).then(
       function(data){
         events = data.events;
         for(var i=0;i<data.events.length;i++){
@@ -108,10 +108,35 @@ angular.module('starter.controllers', [])
   //$scope.events = Events.all();
 })
 
-.controller('PostEventCtrl', function($scope, Events, $ionicLoading) {
+.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location) {
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
+  Location.getCurrentPosition().then(function(position){
+    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    var map = new google.maps.Map(document.getElementById("map"), {
+      center: latLng,
+      zoom: 17,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    var marker = new google.maps.Marker({
+      map: map,
+      position: latLng
+    });
+      
+    $scope.geocode = function(address){
+      Location.geocodeAddress(address, function(results){
+        $scope.event.latitude = results[0].geometry.location.lat();
+        $scope.event.longitude = results[0].geometry.location.lng();
+        map.setCenter(results[0].geometry.location);
+        marker.setMap(null);
+        marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+        });
+      });
+    };
+  });
   $scope.event = {
       roomname: 'Fried rice and chicken nuggets',
       location: '420 Canberra Road',
@@ -124,7 +149,7 @@ angular.module('starter.controllers', [])
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
-      data.append("allImages", value);
+      data.append("allImages[0]", value);
     });
   };
   $scope.post = function(){
