@@ -82,4 +82,5 @@
         <variable name="REVERSED_CLIENT_ID" value="com.googleusercontent.apps.1065984441784-nuij4lulp9bl8cst5ta8s2ova3quqcbf" />
     </plugin>
     <plugin name="cordova-plugin-geolocation" spec="~2.4.0" />
+    <engine name="android" spec="~6.0.0" />
 </widget>
