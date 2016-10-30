@@ -8,7 +8,14 @@
       </div>
       <div class="row padding-top">
         <div class="col"></div>
-        <div class="col col-75"> 
+        <div class="col col-75">
+          <button class="button button-positive button-block button-outline icon-left ion-social-facebook" ng-click="loginWithFacebook()">
+            Login with Facebook
+          </button>
+          <button class="button button-positive button-block button-outline icon-left ion-social-googleplus" ng-click="loginWithGoogle()">
+            Login with Google
+          </button>
+          <div class="padding-bottom"></div>
           <label class="item item-input">
             <span class="input-label">Username</span>
             <input type="text" placeholder="Enter username" ng-model="username">
@@ -19,12 +26,6 @@
           </label>
           <button class="button button-full button-positive"  ng-click="login(username, password)">
             Login
-          </button>
-          <button class="button button-positive button-block" ng-click="loginWithFacebook()">
-            Login with Facebook
-          </button>
-          <button class="button button-positive button-block" ng-click="loginWithGoogle()">
-            Login with Google
           </button>
           <button ui-sref="register" class="button button-clear button-full button-positive">
             Register
