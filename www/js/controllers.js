@@ -2,7 +2,7 @@ angular.module('starter.controllers', [])
 
 .controller('MainCtrl', function($rootScope, $state, $location, AuthService) {
     var authCheck = function(){
-      if(!$state.disableAuthCheck){
+      if(!$state.current.disableAuthCheck){
         if(!AuthService.user()){
           //$state.go('login');
           $location.path('/login');
@@ -46,7 +46,7 @@ angular.module('starter.controllers', [])
  
   Location.getCurrentPosition().then(function(position){
   
-    var latLng = new google.maps.LatLng(position.lat, position.lng);
+    var latLng = new google.maps.LatLng(position.latitude, position.longitude);
 
     var mapOptions = {
       center: latLng,
@@ -66,7 +66,7 @@ angular.module('starter.controllers', [])
       initMarkers();
     });
       
-    Events.find(position.lat, position.lng, 30000, position.sucess).then(
+    Events.find(position.latitude, position.longitude, 30000, position.sucess).then(
       function(data){
         events = data.events;
         for(var i=0;i<data.events.length;i++){
@@ -108,24 +108,39 @@ angular.module('starter.controllers', [])
   //$scope.events = Events.all();
 })
 
-.controller('PostEventCtrl', function($scope, Events, $cordovaDatePicker) {
-  var options = {
-    date: new Date(),
-    mode: 'date', // or 'time'
-    minDate: new Date(),
-    allowOldDates: true,
-    allowFutureDates: false,
-    doneButtonLabel: 'DONE',
-    doneButtonColor: '#F2F3F4',
-    cancelButtonLabel: 'CANCEL',
-    cancelButtonColor: '#000000'
+.controller('PostEventCtrl', function($scope, Events, $ionicLoading) {
+  $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
+    viewData.enableBack = true;
+  }); 
+  $scope.event = {
+      roomname: 'Fried rice and chicken nuggets',
+      location: '420 Canberra Road',
+      contact: '93374226',
+      foodtype: 'Halal',
+      servings: '8 people',
+      endtime: '2016-10-31 23:59',
+      additionalInfo: 'Please bring your own containers. Thanks'
   };
-
-  $scope.changeEndtime = function(){
-    $cordovaDatePicker.show(options).then(function(date){
-        alert(date);
+  var data = new FormData();
+  $scope.getTheFiles = function ($files) {
+    angular.forEach($files, function (value, key) {
+      data.append("allImages", value);
     });
   };
+  $scope.post = function(){
+    $ionicLoading.show({
+      template: 'Loading...'
+    })
+    for(attr in $scope.event){
+      data.append(attr, $scope.event[attr]);
+    }
+    Events.add(data).then(function(data){
+      $ionicLoading.hide();
+      if(data.id){
+        $location.path("/event/"+data.id);
+      }
+    });
+  }
 })
 
 .controller('AuthCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
@@ -154,22 +169,53 @@ angular.module('starter.controllers', [])
       });
   }
   
-  $scope.login = function(username, password){
-      $ionicLoading.show({
-        template: 'Loading...'
-      })
-      AuthService.login(username, password).then(function(result){
-          $ionicLoading.hide();
-          if(result.success){
-              $state.go('tab.map').then(function(){
-                
-              });
-          } else {
-              $ionicPopup.alert({
-                 title: 'Login unsuccessful',
-                 template: result.error
-              });
-          }
-      });
+    $scope.login = function (username, password) {
+        $ionicLoading.show({template: 'Logging in...'});
+
+        AuthService.login(username, password)
+        .then(function () {
+            $state.go('tab.map').then(function () {});
+        }, function (error) {
+            $ionicPopup.alert({
+                title: "Login error",
+                template: error
+            });
+        })
+        .finally(function() {
+            $ionicLoading.hide();
+        });
+    };
+
+    $scope.loginWithFacebook = function () {
+        AuthService.loginFB()
+        .then(function(token) {
+            $ionicLoading.show({template: 'Logging in...'});
+            return AuthService.getFBProfile(token);
+        })
+        .then(AuthService.loginFBServer)
+        .then(function (result) {
+            $state.go('tab.map').then(function () {});
+        }, function (error) {
+            $ionicPopup.alert({
+                title: 'Login error',
+                template: error
+            });
+        })
+        .finally(function() {
+            $ionicLoading.hide();
+        });
+    };
+}])
+
+.controller('ProfileCtrl', ['$scope', 'AuthService', '$ionicLoading', '$ionicPopup', '$state',
+function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
+    $scope.logout = function() {
+      if (typeof(Storage) != "undefined") {
+          localStorage.removeItem("token");
+      }
+      
+      // to be completed
+      
+      $state.go('login');
   }
-});
+}]);

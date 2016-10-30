@@ -4,24 +4,24 @@ angular.module('starter.services', [])
 .value('endpoint', 'http://localhost:8100')
 
 .factory('Location', function($cordovaGeolocation){
-  var singaporeLat = 1.3147268,
-      singaporeLon = 103.7069311,
+  var singaporeLatitude = 1.3147268,
+      singaporeLongitude = 103.7069311,
       options = {timeout: 10000, enableHighAccuracy: true};
   
   return {
     getCurrentPosition: function(){
       return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-        return {lat:position.coords.latitude, lng:position.coords.longitude, zoom:15, success:true};
+        return {latitude:position.coords.latitude, longitude:position.coords.longitude, zoom:15, success:true};
       }, function(error){
         console.log("Could not get location. Return default Singapore location.");
-        return {lat:position.coords.latitude, lng:position.coords.longitude, zoom:10, success:false};
+        return {latitude:singaporeLatitude, longitude:singaporeLongitude, zoom:10, success:false};
       });
     }
   }
 })
 
 
-.factory('Events', function($http, endpoint, $q, host, $interval) {
+.factory('Events', function($http, endpoint, $q, host, $interval, Location) {
 
   var events;
     
@@ -54,7 +54,6 @@ angular.module('starter.services', [])
   }
     
   var initEvent = function(event){
-    
     // distance
     if(event.distance){
         event.distance = Math.round(event.distance * 1000)/1000;
@@ -63,7 +62,12 @@ angular.module('starter.services', [])
     // endtime
     event.endtime = new Date(event.endtime);
     initTimeLeft(event);
-      
+  }
+  
+  var initEventImages = function(event){
+    if(event.images) {
+        return;
+    }
     // images
     $http({
       method: 'POST',
@@ -127,11 +131,40 @@ angular.module('starter.services', [])
       events.splice(events.indexOf(event), 1);
     },
       
+    add: function(data){
+      return Location.getCurrentPosition().then(function(position){
+        data.append("latitude", position.latitude);
+        data.append("longitude", position.longitude);
+        data.append("username", localStorage.getItem("username"));
+            
+        return $http({
+          method: 'POST',
+          url: endpoint+'/post-events',
+          headers: {
+            'Content-Type': undefined,
+            'Authorization': localStorage.getItem("token")
+          },
+          data: data
+        }).then(
+          function(response){
+            if(response.data && response.data.success){
+                return response.data;
+            }
+            return {success:false};
+          },
+          function(response){
+            return {success:false};
+          }
+        ) 
+      })
+    },
+      
     get: function(eventId) {
       if(events){
         //find from cache first
         for (var i = 0; i < events.length; i++) {
           if (events[i].id === parseInt(eventId)) {
+            initEventImages(events[i]);
             return $q.when({success:true, event:events[i]});
           }
         }
@@ -157,6 +190,7 @@ angular.module('starter.services', [])
         function(response){
           if(response.data && response.data.success && response.data.event){
             initEvent(response.data.event);
+            initEventImages(events[i]);
             events.push(response.data.event);
             return {success:true, event:response.data.event};
           }
