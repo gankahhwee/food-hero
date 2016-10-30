@@ -2,7 +2,7 @@ angular.module('starter.services', [])
 
 .value('host', 'http://foodhero.me:8000')
 .value('endpoint', 'http://foodhero.me:8000')
-//.value('endpoint', 'http://localhost:8100')
+//.value('endpoint', 'http://localhost:8100/api')
 
 .factory('Location', function($cordovaGeolocation){
   var singaporeLatitude = 1.3147268,
