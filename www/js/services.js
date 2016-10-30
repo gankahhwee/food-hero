@@ -1,8 +1,8 @@
 angular.module('starter.services', [])
 
 .value('host', 'http://foodhero.me:8000')
-.value('endpoint', 'http://foodhero.me:8000')
-//.value('endpoint', 'http://localhost:8100/api')
+//.value('endpoint', 'http://foodhero.me:8000')
+.value('endpoint', 'http://localhost:8100/api')
 
 .factory('Location', function($cordovaGeolocation){
   var singaporeLatitude = 1.3147268,
@@ -33,9 +33,10 @@ angular.module('starter.services', [])
 })
 
 
-.factory('Events', function($http, endpoint, $q, host, $interval, Location) {
+.factory('Events', function($http, endpoint, $q, host, $interval, Location, $filter) {
 
-  var events;
+  var events,
+      goingEvents;
     
   $interval(function(){
     if(events){
@@ -106,6 +107,46 @@ angular.module('starter.services', [])
       }
     ) 
   }
+  
+    var getGoingEvents = function() {
+        if (typeof(goingEvents) == 'undefined') {
+            var username = localStorage.getItem("username");
+            goingEvents = JSON.parse(localStorage.getItem(username + "-going"));
+            if (goingEvents == null)
+                goingEvents = [];
+        }
+        
+        return goingEvents;
+    }
+    
+    var saveGoingEvents = function(){
+        var username = localStorage.getItem("username");
+        var goingEventsString = JSON.stringify(goingEvents);
+        localStorage.setItem(username + "-going", goingEventsString);
+    }
+    
+    var getGoingEvent = function(eventId) {
+        var matches = $filter('filter')(getGoingEvents(), {id:eventId});
+        if (matches.length > 0)
+            return matches[0];
+        return null;
+    }
+    
+    var updateGoingEvent = function(event) {
+        var match = getGoingEvent(event.id);
+        if (event.isUserGoing) {
+            if (match != null) {
+                goingEvents[goingEvents.indexOf(match)] = event;
+            } else {
+                goingEvents.push(event);
+            }
+        } else {
+            if (match != null)
+                goingEvents.splice(goingEvents.indexOf(match), 1);
+        }
+        
+        saveGoingEvents();
+    }
 
   return {
     find: function(latitude,longitude,radius,currentLocation){
@@ -132,15 +173,21 @@ angular.module('starter.services', [])
               if(!currentLocation){
                 event.distance = undefined;
               }
+                
+              var match = getGoingEvent(events[i].id);
+              if (match != null) {
+                events[i].isUserGoing = true;
+                updateGoingEvent(events[i]);
+              }
             }
             return {success:true, events:events};
           }
         }
-      )  
+      )
     },
       
-    remove: function(event) {
-      events.splice(events.indexOf(event), 1);
+    getGoingEvents: function() {
+        return $q.when(getGoingEvents());
     },
       
     add: function(data){
@@ -211,7 +258,10 @@ angular.module('starter.services', [])
     },
       
     isUserGoing: function (eventId) {
-        return $http({
+        var match = getGoingEvent(eventId);
+        return $q.when({going: (match != null)});
+        
+        /*return $http({
             method: 'POST',
             url: endpoint + '/is-user-going',
             headers: {
@@ -236,10 +286,10 @@ angular.module('starter.services', [])
                     return $q.reject(response.data.error.message);
                 }
             }
-        )
+        )*/
     },
       
-    goingEvent: function (eventId, going) {
+    goingEvent: function (event) {
         return $http({
             method: 'POST',
             url: endpoint + '/going-event',
@@ -254,13 +304,14 @@ angular.module('starter.services', [])
                 return str.join("&");
             },
             data: {
-                event_id: eventId,
-                going: going,
+                event_id: event.id,
+                going: event.isUserGoing?1:0,
                 username: localStorage.getItem("username")
             }
         }).then(
             function (response) {
                 if (response.data && response.data.success) {
+                    updateGoingEvent(event);
                     return;
                 } else {
                     return $q.reject(response.data.error.message);
@@ -271,8 +322,15 @@ angular.module('starter.services', [])
   };
 })
 
-.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', function($http, endpoint, $cordovaOauth, $q) {
+.factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', 'Events', function($http, endpoint, $cordovaOauth, $q, Events) {
   var user;
+    
+    function initUser(responseData) {
+        localStorage.setItem("mealsShared", responseData.mealsShared);
+        localStorage.setItem("mealsSaved", responseData.mealsSaved);
+        localStorage.setItem("token", responseData.token);
+    }
+
   return {
       
     user: function(){
@@ -323,13 +381,7 @@ angular.module('starter.services', [])
               return $q.reject('Unauthorized');
           }
           if(response.data && response.data.success){
-            if(typeof(Storage) != "undefined") {
-              localStorage.setItem("mealsShared", response.data.mealsShared);
-              localStorage.setItem("mealsSaved", response.data.mealsSaved);
-              localStorage.setItem("token", response.data.token);
-            } else {
-              //alert("Sorry, your browser does not support Web Storage...");
-            }
+              initUser(response.data);
           } else {
               return $q.reject(response.data ? response.data.error : '');
           }
@@ -411,13 +463,7 @@ angular.module('starter.services', [])
                 return $q.reject('Unauthorized');
             }
             if (response.data && response.data.success){
-                if (typeof(Storage) != "undefined") {
-                  localStorage.setItem("mealsShared", response.data.mealsShared);
-                  localStorage.setItem("mealsSaved", response.data.mealsSaved);
-                  localStorage.setItem("token", response.data.token);
-                } else {
-                  //alert("Sorry, your browser does not support Web Storage...");
-                }
+                initUser(response.data);
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }
@@ -527,13 +573,7 @@ angular.module('starter.services', [])
                 return $q.reject('Unauthorized');
             }
             if (response.data /*&& response.data.success*/){
-                if (typeof(Storage) != "undefined") {
-                  localStorage.setItem("mealsShared", response.data.mealsShared);
-                  localStorage.setItem("mealsSaved", response.data.mealsSaved);
-                  localStorage.setItem("token", response.data.token);
-                } else {
-                  //alert("Sorry, your browser does not support Web Storage...");
-                }
+                initUser(response.data);
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }

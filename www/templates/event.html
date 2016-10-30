@@ -1,7 +1,7 @@
 <ion-view view-title="Available meals">
     <ion-nav-buttons side="right">
-      <button class="button button-clear button-positive icon-left" ng-class="{'ion-ios-checkmark-empty':going}" ng-click="toggleGo()">
-          {{going?'Going':'I will go!'}}
+      <button class="button button-clear button-positive icon-left" ng-class="{'ion-ios-checkmark-empty':event.isUserGoing}" ng-click="toggleGo()">
+          {{event.isUserGoing?'Going':'Going?'}}
           <!--span ng-if='!going'>I will go!</span>
           <span ng-if='going'>Going</span-->
       </button>

@@ -100,7 +100,7 @@ angular.module('starter.controllers', [])
         $scope.event = data.event;
         return $stateParams.id;
     }).then(Events.isUserGoing).then(function(data) {
-        $scope.going = data.going;
+        $scope.event.isUserGoing = data.going;
     }).catch(function(error) {
         $ionicPopup.alert({title: 'Loading error', template: error});
     }).finally(function() {
@@ -109,8 +109,8 @@ angular.module('starter.controllers', [])
     
     $scope.toggleGo = function() {
         $ionicLoading.show({template: 'Saving...'});
-        Events.goingEvent($stateParams.id, $scope.going?0:1).then(function(data) {
-            $scope.going = !$scope.going;
+        $scope.event.isUserGoing = !$scope.event.isUserGoing;
+        Events.goingEvent($scope.event).then(function(data) {
         }).catch(function(error) {
             $ionicPopup.alert({title: 'Saving error', template: error});
         }).finally(function() {
