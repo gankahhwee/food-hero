@@ -174,6 +174,8 @@ function($scope, AuthService, $ionicLoading, $ionicPopup, $state) {
           localStorage.removeItem("token");
       }
       
+      AuthService.logoutGG();
+        
       // to be completed
       
       $state.go('login');

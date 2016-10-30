@@ -355,6 +355,14 @@ angular.module('starter.services', [])
         );
     },
       
+    logoutGG: function() {
+        var deferred = $q.defer;
+        window.plugins.googleplus.logout(function(msg) {
+            deffered.resolve(msg);
+        });
+        return deferred.promise;
+    },
+      
     meals: function(){
       return $http({
         method: 'POST',
