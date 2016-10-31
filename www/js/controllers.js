@@ -202,8 +202,8 @@ angular.module('starter.controllers', [])
   $scope.event = {
       endtime: $filter('date')(endtime, 'yyyy-MM-dd HH:mm')
   };
-  $scope.enddate = $scope.event.endtime.substr(0,10);
-  $scope.endtime = $scope.event.endtime.substr(11);
+  $scope.enddate = new Date($scope.event.endtime.substr(0,10) + ' 00:00');
+  $scope.endtime = new Date('1-1-1970 ' + $scope.event.endtime.substr(11));
     
   var setEventLatLng = function(latLng){
     $scope.event.latitude = latLng.lat();
@@ -260,11 +260,16 @@ angular.module('starter.controllers', [])
       data.append("allImages[0]", value);
     });
   };
+  
+  $scope.updateEventEndtime = function(enddate, endtime) {
+      if (typeof(enddate) != 'undefined' && typeof(endtime) != 'undefined') 
+        $scope.event.endtime = new Date(enddate.toDateString() + ' ' + endtime.toTimeString());
+  };
   $scope.post = function(){
     $ionicLoading.show({
       template: 'Posting...'
     });
-    $scope.event.endtime = new Date($scope.event.endtime);
+
     for(attr in $scope.event){
       if (attr == 'endtime')
             data.append(attr, $scope.event[attr].toISOString());
