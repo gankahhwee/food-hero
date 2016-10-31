@@ -39,7 +39,7 @@ angular.module('starter.controllers', [])
     markers.push(marker);
 
     var content = '<h4>'+ event.roomname+'</h4>'+
-        '<p>By '+ $filter('date')(event.endtime, 'EEE, d MMM h:mm a') + '<br/>(' + event.timeLeftDisplay+' left)</p>'+
+        '<p>By '+ $filter('date')(event.endtime, 'EEE, d MMM h:mm a') + '<br/>(' + $filter('timeleft')(event.endtime) +' left)</p>'+
         '<p>'+event.location + '<br/>' + event.distance + ' km away</p>'+
         '<p>'+event.foodtype+'<br/>For ' + event.servings + '</p>'+
         '<p><a href="#/event/'+event.id+'">More details</a></p>';

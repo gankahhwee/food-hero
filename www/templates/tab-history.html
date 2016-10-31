@@ -10,7 +10,7 @@
       <h2 ng-bind="event.roomname"></h2>
       <p ng-bind="event.location"></p>
       <p class="small">By <span ng-bind="event.endtime | date:'EEE, d MMM h:m a'"></span></p>
-      <p>(<span ng-bind="event.timeLeftDisplay"></span> left)</p>
+      <p>(<span ng-bind="event.endtime|timeleft"></span> left)</p>
     </a>
 
     <div class="item item-divider">
