@@ -9,7 +9,8 @@
       <img ng-src="{{event.images[0] || 'img/logo.png'}}">
       <h2 ng-bind="event.roomname"></h2>
       <p ng-bind="event.location"></p>
-      <p ng-bind="event.timeLeftDisplay"></p>
+      <p class="small">By <span ng-bind="event.endtime | date:'EEE, d MMM h:m a'"></span></p>
+      <p>(<span ng-bind="event.timeLeftDisplay"></span> left)</p>
     </a>
 
     <div class="item item-divider">
@@ -20,7 +21,7 @@
       <img ng-src="{{event.images[0] || 'img/logo.png'}}">
       <h2 ng-bind="event.roomname"></h2>
       <p ng-bind="event.location"></p>
-      <p ng-bind="event.endtime | date:'EEE, d MMM h:m a'"></p>
+      <p>Ended on <span ng-bind="event.endtime | date:'EEE, d MMM h:m a'"></span></p>
     </a>
         
     </div>

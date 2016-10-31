@@ -75,9 +75,15 @@ angular.module('starter.services', [])
     var minsLeft = timeLeft / 1000 / 60;
     var hoursLeft = minsLeft / 60;
     var daysLeft = hoursLeft / 24;
-    event.timeLeftDisplay = formatTimeLeftText(daysLeft, "day") + 
-        formatTimeLeftText(hoursLeft % 24, "hour") + 
-        formatTimeLeftText(minsLeft % 60, "min");
+    if (daysLeft >= 1) {
+        event.timeLeftDisplay = formatTimeLeftText(daysLeft, "day");
+    } else if (hoursLeft >= 1) {
+        event.timeLeftDisplay =
+            formatTimeLeftText(hoursLeft % 24, "hour") + 
+            formatTimeLeftText(minsLeft % 60, "min");
+    } else {
+        event.timeLeftDisplay = formatTimeLeftText(minsLeft % 60, "min");
+    }
   }
     
   var initEvent = function(event){
