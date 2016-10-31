@@ -239,7 +239,10 @@ angular.module('starter.controllers', [])
     });
     $scope.event.endtime = new Date($scope.event.endtime);
     for(attr in $scope.event){
-      data.append(attr, $scope.event[attr]);
+      if (attr == 'endtime')
+            data.append(attr, $scope.event[attr].toISOString());
+        else
+            data.append(attr, $scope.event[attr]);
     }
     Events.add(data, $scope.event).then(function(data){
       $ionicLoading.hide();
