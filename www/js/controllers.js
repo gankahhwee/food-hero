@@ -125,7 +125,7 @@ angular.module('starter.controllers', [])
   initMap();
   
   $scope.shareFood = function(){
-    $location.path("/post");
+      $state.go('post');
   }
 })
 
