@@ -32,8 +32,11 @@
         <input name="servings" type="text" ng-model="event.servings" placeholder="For how many people?">
       </label>
       <label class="item item-input item-stacked-label">
-        <span class="input-label" for="endtime">Ends at</span>
-        <input name="endtime" type="text" ng-model="event.endtime" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" onblur="(this.type='text')">
+        <span class="input-label" for="endtime">Ends at {{event.endtime}}</span>
+        <input name="endtime" type="text" ng-model="enddate" placeholder="Date" 
+               onfocus="(this.type='date')" onblur="(this.type='text')" ng-change="event.endtime = enddate + ' ' + endtime">
+        <input name="endtime" type="text" ng-model="endtime" placeholder="Time" 
+               onfocus="(this.type='time')" onblur="(this.type='text')" ng-change="event.endtime = enddate + ' ' + endtime">
       </label>
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="additionalInfo">Additional information</span>
