@@ -34,7 +34,7 @@
       </label>
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="endtime">Ends at</span>
-        <input name="endtime" type="text" ng-model="event.endtime" placeholder="When is it available until? (YYYY-MM-DD HH:MM)">
+        <input name="endtime" type="text" ng-model="event.endtime" placeholder="dd/mm/yyyy" onfocus="(this.type='date')" onblur="(this.type='text')">
       </label>
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="additionalInfo">Additional information</span>
