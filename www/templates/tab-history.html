@@ -5,7 +5,7 @@
     <div class="item item-divider">
       Upcoming Events
     </div>
-    <a class="item item-thumbnail-left" ui-sref="event({id:event.id})" ng-repeat="event in events | filter:isUpcomingEvent | orderBy:'endtime':true track by $index">
+    <a class="item item-thumbnail-left" ui-sref="event({id:event.id})" ng-repeat="event in events | filter:isUpcomingEvent | orderBy:'endtime' track by $index">
       <img ng-src="{{event.images[0] || 'img/logo.png'}}">
       <h2 ng-bind="event.roomname"></h2>
       <p ng-bind="event.location"></p>
