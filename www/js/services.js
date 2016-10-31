@@ -612,7 +612,9 @@ angular.module('starter.services', [])
         
         user = undefined;
   
-        functions.logoutGG();
+        if ((typeof(window.plugins) != 'undefined') &&
+            (typeof(window.plugins.googleplus) != 'undefined'))
+            functions.logoutGG();
         
         return $q.when();
     },
