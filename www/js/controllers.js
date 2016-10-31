@@ -180,19 +180,20 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout) {
+.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout, $filter) {
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
+    
+  // set default end time to be +2 hours
+  var endtime = new Date();
+  endtime.setTime(endtime.getTime() + (2*60*60*1000));
+    
   $scope.event = {
-      /*roomname: 'Fried rice and chicken nuggets',
-      location: '420 Canberra Road',
-      contact: '93374226',
-      foodtype: 'Halal',
-      servings: '8 people',
-      endtime: '2016-10-31 23:59',
-      additionalInfo: 'Please bring your own containers. Thanks'*/
+      endtime: $filter('date')(endtime, 'yyyy-MM-dd HH:mm')
   };
+  $scope.enddate = $scope.event.endtime.substr(0,10);
+  $scope.endtime = $scope.event.endtime.substr(11);
   Location.getCurrentPosition().then(function(latLng){
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
       center: latLng,
@@ -235,7 +236,8 @@ angular.module('starter.controllers', [])
   $scope.post = function(){
     $ionicLoading.show({
       template: 'Posting...'
-    })
+    });
+    $scope.event.endtime = new Date($scope.event.endtime);
     for(attr in $scope.event){
       data.append(attr, $scope.event[attr]);
     }
