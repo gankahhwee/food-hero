@@ -204,34 +204,51 @@ angular.module('starter.controllers', [])
   };
   $scope.enddate = $scope.event.endtime.substr(0,10);
   $scope.endtime = $scope.event.endtime.substr(11);
+    
+  var setEventLatLng = function(latLng){
+    $scope.event.latitude = latLng.lat();
+    $scope.event.longitude = latLng.lng();
+      
+    Location.reverseGeocode(latLng, function(results){
+      console.log("reverse geocoding results");
+      console.log(results);
+      $timeout(function(){
+        $scope.event.location = results[0].formatted_address;
+      });
+    });
+  }
+    
   Location.getCurrentPosition().then(function(latLng){
+    setEventLatLng(latLng);
+      
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
       center: latLng,
       zoom: 17,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
-    var marker = new google.maps.Marker({
-      map: map,
-      position: latLng
-    });
-    $scope.event.latitude = latLng.lat();
-    $scope.event.longitude = latLng.lng();
-    Location.reverseGeocode(latLng, function(results){
-      $timeout(function(){
-        $scope.event.location = results[0].formatted_address;
-      });
-    });
+      
+    var marker;
+    var setMarker = function(markerLatLng){
+        if(marker){
+            marker.setMap(null);
+        }
+        marker = new google.maps.Marker({
+          map: map,
+          draggable:true,
+          position: markerLatLng
+        });
+        marker.addListener('dragend', function(event){setEventLatLng(event.latLng)});
+    }
+    setMarker(latLng);
       
     $scope.geocode = function(address){
       Location.geocodeAddress(address, function(results){
+        console.log("geocoding results");
+        console.log(results);
         $scope.event.latitude = results[0].geometry.location.lat();
         $scope.event.longitude = results[0].geometry.location.lng();
         map.setCenter(results[0].geometry.location);
-        marker.setMap(null);
-        marker = new google.maps.Marker({
-          map: map,
-          position: results[0].geometry.location
-        });
+        setMarker(results[0].geometry.location);
       });
     };
   }, function(message){
