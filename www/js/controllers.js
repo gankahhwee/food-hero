@@ -94,6 +94,9 @@ angular.module('starter.controllers', [])
   }
  
   var initMap = function() {
+      initMapWithLocation(new google.maps.LatLng(1.2839384,103.8492658));
+      
+      $ionicLoading.show({template: 'Locating you...'});
       Location.getCurrentPosition().then(function(latLng){
         initMapWithLocation(latLng);
 
@@ -110,7 +113,6 @@ angular.module('starter.controllers', [])
                   text: 'Locate again',
                   type: 'button-positive',
                   onTap: function(e) {
-                      $ionicLoading.show({template: 'Locating you...'});
                       initMap();
                   }
             },
@@ -121,7 +123,7 @@ angular.module('starter.controllers', [])
                     e.preventDefault();
                   } else {
                     Location.geocodeAddress($scope.data.location, function(results){
-                      initMapWithLocation(results[0].geometry.location);
+                        $scope.map.setCenter(results[0].geometry.location);
                     });
                   }
                 }
