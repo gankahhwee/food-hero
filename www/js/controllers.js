@@ -158,6 +158,14 @@ angular.module('starter.controllers', [])
 })
 
 .controller('EventsCtrl', function($scope, Events) {
+    $scope.isPastEvent = function(event) {
+        return event.endtime < new Date();
+    };
+    
+    $scope.isUpcomingEvent = function(event) {
+        return event.endtime >= new Date();
+    };
+    
   Events.getGoingEvents().then(function(events){
       $scope.events = events;
   });

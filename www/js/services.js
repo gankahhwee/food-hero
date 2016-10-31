@@ -128,6 +128,9 @@ angular.module('starter.services', [])
             goingEvents = JSON.parse(localStorage.getItem(username + "-going"));
             if (goingEvents == null)
                 goingEvents = [];
+            for(var i=0; i<goingEvents.length;i++){
+                goingEvents[i].endtime = new Date(goingEvents[i].endtime);
+            }
         }
         
         return goingEvents;
