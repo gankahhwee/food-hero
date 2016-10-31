@@ -11,6 +11,9 @@ angular.module('starter.services', [])
       geocoder = new google.maps.Geocoder();
   
   function geocodeAddress(address, callback, errorCallback) {
+    if(address && address.toLowerCase().indexOf('Singapore') < 0){
+        address += ", Singapore";
+    }
     geocoder.geocode({'address': address}, function(results, status) {
       if (status === 'OK') { if(callback) callback(results);
       } else { if(errorCallback) errorCallback(); }
