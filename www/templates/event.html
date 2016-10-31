@@ -38,7 +38,9 @@
             Hosted by: {{event.username}} 
             <!--<a ng-show="event.contact" ng-href="{{'tel:'+event.contact}}">({{event.contact}})</a>-->
           </p>
-          <p class="subdue" ng-class="event.contact"></p>
+          <p>
+            Contact: {{event.contact}} 
+          </p>
       </div>
         
       <div class="item" ng-hide="event.additionalInfo.length == 0">
