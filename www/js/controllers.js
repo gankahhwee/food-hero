@@ -74,7 +74,7 @@ angular.module('starter.controllers', [])
   var initMapWithLocation = function (location) {
     $scope.map.setCenter(location);
 
-    var marker = new google.maps.Marker({
+    /*var marker = new google.maps.Marker({
         map: $scope.map,
         position: location,
         icon: {
@@ -83,7 +83,8 @@ angular.module('starter.controllers', [])
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(0, 0)
         }
-    });
+    });*/
+    var GeoMarker = new GeolocationMarker($scope.map);
 
     $ionicLoading.show({template: 'Finding food near you...'});
     Events.find(location.lat(), location.lng(), 30000, true).then(
