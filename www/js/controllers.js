@@ -46,19 +46,17 @@ angular.module('starter.controllers', [])
     var infoWindow = new google.maps.InfoWindow({content: content});
     infoWindows.push(infoWindow);
 
-    if(event){
-      marker.addListener('click', function () {
-        for(var i=0;i<infoWindows.length;i++){
-          infoWindows[i].close();
-        }
-        infoWindow.addListener('click', function(){
-          $timeout(function(){
-            $location.path("/event/"+event.id);
-          });
+    marker.addListener('click', function () {
+      for(var i=0;i<infoWindows.length;i++){
+        infoWindows[i].close();
+      }
+      infoWindow.addListener('click', function(){
+        $timeout(function(){
+          $location.path("/event/"+event.id);
         });
-        infoWindow.open($scope.map, marker);
       });
-    }
+      infoWindow.open($scope.map, marker);
+    });
   }
   
   var createMap = function(center){
@@ -216,8 +214,8 @@ angular.module('starter.controllers', [])
       });
     });
   }
-    
-  Location.getCurrentPosition().then(function(latLng){
+  
+  var initMap = function(latLng){
     setEventLatLng(latLng);
       
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
@@ -237,6 +235,14 @@ angular.module('starter.controllers', [])
           position: markerLatLng
         });
         marker.addListener('dragend', function(event){setEventLatLng(event.latLng)});
+        
+        var infoWindow = new google.maps.InfoWindow({
+          content: 'You can drag me'
+        });
+        infoWindow.open(map, marker);
+        $timeout(function(){
+           infoWindow.close(); 
+        }, 4000);
     }
     setMarker(latLng);
       
@@ -250,9 +256,14 @@ angular.module('starter.controllers', [])
         setMarker(results[0].geometry.location);
       });
     };
-  }, function(message){
-      //TODO
-  });
+  }
+    
+  Location.getCurrentPosition().then(
+    initMap, 
+    function(message){
+      initMap(Location.getDefaultLocation())
+    }
+  );
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
