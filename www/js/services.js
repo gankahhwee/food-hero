@@ -51,40 +51,6 @@ angular.module('starter.services', [])
   var events,
       goingEvents;
     
-  $interval(function(){
-    if(events){
-      for(var i=0;i<events.length;i++){
-        initTimeLeft(events[i]);
-      }
-    }
-  },60000);
-    
-  var formatTimeLeftText = function(timeLeft, suffix){
-    timeLeft = Math.floor(timeLeft);
-    if(timeLeft < 1) return "";
-    var txt = Math.floor(timeLeft) + " " + suffix;
-    if(timeLeft > 1){
-      txt += "s";
-    }
-    return txt + " ";
-  }
-    
-  var initTimeLeft = function(event){
-    var timeLeft = event.timeLeft = (event.endtime.getTime() - new Date().getTime()); // in miliseconds
-    var minsLeft = timeLeft / 1000 / 60;
-    var hoursLeft = minsLeft / 60;
-    var daysLeft = hoursLeft / 24;
-    if (daysLeft >= 1) {
-        event.timeLeftDisplay = formatTimeLeftText(daysLeft, "day");
-    } else if (hoursLeft >= 1) {
-        event.timeLeftDisplay =
-            formatTimeLeftText(hoursLeft % 24, "hour") + 
-            formatTimeLeftText(minsLeft % 60, "min");
-    } else {
-        event.timeLeftDisplay = formatTimeLeftText(minsLeft % 60, "min");
-    }
-  }
-    
   var initEvent = function(event){
     // distance
     if(event.distance){
@@ -93,7 +59,6 @@ angular.module('starter.services', [])
       
     // endtime
     event.endtime = new Date(event.endtime);
-    initTimeLeft(event);
   }
   
   var initEventImages = function(event){
