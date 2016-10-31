@@ -7,6 +7,7 @@ angular.module('starter.services', [])
 .factory('Location', function($cordovaGeolocation, $q, $timeout){
   var currentLocation,
       singaporePlaceId = 'ChIJdZOLiiMR2jERxPWrUs9peIg',
+      singaporeLocation = new google.maps.LatLng(1.2839384,103.8492658);
       options = {timeout: 10000, enableHighAccuracy: true},
       geocoder = new google.maps.Geocoder();
   
@@ -25,6 +26,9 @@ angular.module('starter.services', [])
   }
     
   return {
+    getDefaultLocation: function() {
+        return singaporeLocation;
+    },
     getCurrentPosition: function(){
       if(currentLocation){
         return $q.when(currentLocation);
