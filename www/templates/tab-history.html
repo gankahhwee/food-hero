@@ -21,7 +21,7 @@
       <img ng-src="{{event.images[0] || 'img/logo.png'}}">
       <h2 ng-bind="event.roomname"></h2>
       <p ng-bind="event.location"></p>
-      <p>Ended on <span ng-bind="event.endtime | date:'EEE, d MMM h:m a'"></span></p>
+      <p>Ended on <span ng-bind="event.endtime | date:'EEE, d MMM h:mm a'"></span></p>
     </a>
         
     </div>
