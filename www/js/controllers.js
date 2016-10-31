@@ -91,15 +91,15 @@ angular.module('starter.controllers', [])
   };
     
   $scope.refresh = function(){
-      initMap();
+      initMap(true);
   }
  
-  var initMap = function() {
+  var initMap = function(reload) {
       // create a default Singapore map
       createMap(Location.getDefaultLocation());
       
       $ionicLoading.show({template: 'Locating you...'});
-      Location.getCurrentPosition().then(function(latLng){
+      Location.getCurrentPosition(reload).then(function(latLng){
         initMapWithLocation(latLng);
 
       }, function(message){

@@ -32,7 +32,10 @@ angular.module('starter.services', [])
     getDefaultLocation: function() {
         return singaporeLocation;
     },
-    getCurrentPosition: function(){
+    getCurrentPosition: function(reload){
+      if(reload){
+        currentLocation = undefined;
+      }
       if(currentLocation){
         return $q.when(currentLocation);
       }
