@@ -41,7 +41,7 @@
           <p class="subdue" ng-class="event.contact"></p>
       </div>
         
-      <div class="item">
+      <div class="item" ng-hide="event.additionalInfo.length == 0">
           <p ng-bind="event.additionalInfo"></p>
       </div>
         

@@ -2,36 +2,47 @@
   <ion-content ng-init="currentPosition=true">
     <form name="eventForm">
         <div class="list">
+            
           <label class="item item-input item-stacked-label">
             <span class="input-label" for="roomname">Title</span>
             <input required type="text" name="roomname" ng-model="event.roomname" placeholder="Enter title (what food at where?)">
           </label>
+            
           <label class="item item-input item-stacked-label">
               <span class="input-label" for="contact">Location</span>
               <input required type="text" name="location" ng-model="event.location"
                      placeholder="Postal code, address or building name"
                      ng-enter="geocode(event.location)" ng-blur="geocode(event.location)">
           </label>
-          <!--<ion-checkbox ng-model="currentPosition" ng-change="checkLocation(currentPosition)">My Current Position</ion-checkbox>-->
+            
           <div id="event-post-map" class="map"></div>
-          <label class="item item-input item-stacked-label">
-            <span class="input-label" for="contact">Contact / Email</span>
-            <input required name="contact" type="text" ng-model="event.contact" placeholder="How can you be contacted?">
-          </label>
 
            <label class="item item-input item-stacked-label">
              <span class="input-label" for="allImages">Photo</span><br/>
              <input type="file" name="allImages" ng-files="getTheFiles($files)"> 
           </label>
-
-          <label class="item item-input item-stacked-label">
-            <span class="input-label" for="foodtype">Food Type</span>
-            <input required type="text" name="foodtype" ng-model="event.foodtype" placeholder="Is it vegetarian, halal or?">
+            
+          <div class="item item-divider">Food</div>
+          
+          <label ng-repeat="foodtype in foodTypes" class="item item-checkbox">
+              <div class="checkbox checkbox-input-hidden disable-pointer-events checkbox-circle">
+                <input type="checkbox" ng-value="foodtype.value" ng-model="foodtype.selected"><i class="checkbox-icon"></i>
+              </div>
+              <div class="item-content disable-pointer-events"><span ng-bind="foodtype.value"></span></div>
           </label>
+            
+          <label class="item item-input item-stacked-label">
+            <span class="input-label" for="servings">Other food type</span>
+            <input name="foodtype" type="text" ng-model="event.foodtype" placeholder="Optional, if not specified above">
+          </label>
+            
           <label class="item item-input item-stacked-label">
             <span class="input-label" for="servings">Servings</span>
-            <input required name="servings" type="text" ng-model="event.servings" placeholder="For how many people?">
+            <input required name="servings" type="text" ng-model="event.servings" placeholder="Enough for how many people?">
           </label>
+            
+          <div class="item item-divider"></div>
+            
           <label class="item item-input item-stacked-label">
             <div class="input-label" for="endtime">Ends at</div><br/>
             <input name="endtime" type="text" ng-model="enddate" placeholder="Date" style="width: auto; display: inline-block;"
@@ -39,15 +50,23 @@
             <input name="endtime" type="text" ng-model="endtime" placeholder="Time" style="width: auto; display: inline-block;"
                    onfocus="(this.type='time')" onblur="(this.type='text')" ng-change="event.endtime = enddate + ' ' + endtime">
           </label>
+            
+          <label class="item item-input item-stacked-label">
+            <span class="input-label" for="contact">Contact / Email</span>
+            <input required name="contact" type="text" ng-model="event.contact" placeholder="How can you be contacted?">
+          </label>
+            
           <label class="item item-input item-stacked-label">
             <span class="input-label" for="additionalInfo">Additional information</span>
             <input name="additionalInfo" type="text" ng-model="event.additionalInfo" placeholder="Anything else that you want to let others know?">
           </label>
+            
           <div class="padding-horizontal">
               <button class="button button-full button-positive" type="submit" ng-disabled="eventForm.$invalid" ng-click="post()">
                 Save
               </button>
           </div>
+            
         </div>
     </form>
   </ion-content>

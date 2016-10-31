@@ -146,7 +146,7 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading) {
+.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading, $ionicPopup) {
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
       viewData.enableBack = true;
     }); 
@@ -192,12 +192,22 @@ angular.module('starter.controllers', [])
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
+  
+  $scope.foodTypes = [
+    {value:'Halal'},
+    {value:'Vegetarian'},
+    //{value:'Vegetarian-friendly'},
+    {value:'Vegan'}
+    //,{value:'Vegan-friendly'}
+  ];
     
   // set default end time to be +2 hours
   var endtime = new Date();
   endtime.setTime(endtime.getTime() + (2*60*60*1000));
     
   $scope.event = {
+      foodtype: '',
+      additionalInfo: '',
       endtime: $filter('date')(endtime, 'yyyy-MM-dd HH:mm')
   };
   $scope.enddate = $scope.event.endtime.substr(0,10);
@@ -275,7 +285,22 @@ angular.module('starter.controllers', [])
     $ionicLoading.show({
       template: 'Posting...'
     });
+      
     $scope.event.endtime = new Date($scope.event.endtime);
+      
+    // process food types
+    var combinedFoodtype = '';
+    for(var i=0; i<$scope.foodTypes.length; i++){
+        if(!$scope.foodTypes[i].selected){
+            combinedFoodtype += 'Not ';
+        }
+        combinedFoodtype += $scope.foodTypes[i].value + ', ';
+    }
+    if($scope.event.foodtype.trim().length > 0){
+        $scope.event.foodtype = combinedFoodtype + $scope.event.foodtype;
+    } else {
+        $scope.event.foodtype = combinedFoodtype.substr( 0, combinedFoodtype.length-2 );
+    }
     for(attr in $scope.event){
       if (attr == 'endtime')
             data.append(attr, $scope.event[attr].toISOString());
