@@ -28,7 +28,13 @@ angular.module('starter.controllers', [])
     var marker = new google.maps.Marker({
       map: $scope.map,
       animation: google.maps.Animation.DROP,
-      position: latLng
+      position: latLng/*,
+      icon: {
+        url: 'img/red-circle-128.png',
+        size: new google.maps.Size(32, 32),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(0, 0)
+      }*/
     });   
     markers.push(marker);
 
@@ -66,7 +72,12 @@ angular.module('starter.controllers', [])
     var marker = new google.maps.Marker({
       map: $scope.map,
       position: targetLatLng,
-      icon: 'img/blue-circle.png'
+      icon: {
+        url: 'img/blue-circle.png',
+        size: new google.maps.Size(32, 32),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(0, 0)
+      }
     });
       
     Events.find(targetLatLng.lat(), targetLatLng.lng(), 30000, true).then(
@@ -75,14 +86,6 @@ angular.module('starter.controllers', [])
         events = data.events;
         for(var i=0;i<data.events.length;i++){
           var event = data.events[i];
-          /*var content = '<h4>'+event.roomname+'</h4>'+
-                '<p>Ending at '+event.endtime+'</p>'+
-                '<p>'+event.distance+' km away</p>'+
-                '<p>'+event.location+'</p>'+
-                '<p>Type: '+event.foodtype+'</p>'+
-                '<p>Servings: '+event.servings+'</p>'+
-                '<p>By @'+event.username+'</p>'+
-                '<p><a href="#/event/'+event.id+'">Read more</a></p>';*/
           var latLng = new google.maps.LatLng(data.events[i].latitude, data.events[i].longitude);
           addEventMarker(latLng, event);
         }
@@ -91,8 +94,7 @@ angular.module('starter.controllers', [])
   }
  
   var initMap = function() {
-      Location.getCurrentPosition().then(function(position){
-        var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      Location.getCurrentPosition().then(function(latLng){
         initMapWithLocation(latLng);
 
       }, function(message){
@@ -191,8 +193,7 @@ angular.module('starter.controllers', [])
       endtime: '2016-10-31 23:59',
       additionalInfo: 'Please bring your own containers. Thanks'*/
   };
-  Location.getCurrentPosition().then(function(position){
-    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  Location.getCurrentPosition().then(function(latLng){
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
       center: latLng,
       zoom: 17,
@@ -202,8 +203,8 @@ angular.module('starter.controllers', [])
       map: map,
       position: latLng
     });
-    $scope.event.latitude = position.coords.latitude;
-    $scope.event.longitude = position.coords.longitude;
+    $scope.event.latitude = latLng.lat();
+    $scope.event.longitude = latLng.lng();
     Location.reverseGeocode(latLng, function(results){
       $timeout(function(){
         $scope.event.location = results[0].formatted_address;
@@ -223,7 +224,7 @@ angular.module('starter.controllers', [])
       });
     };
   }, function(message){
-      alert(message);
+      //TODO
   });
   var data = new FormData();
   $scope.getTheFiles = function ($files) {

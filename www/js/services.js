@@ -30,7 +30,7 @@ angular.module('starter.services', [])
         return $q.when(currentLocation);
       }
       return $cordovaGeolocation.getCurrentPosition(options).then(function(position){
-        currentLocation = position;
+        currentLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
         $timeout(function(){
           currentLocation = undefined;
         },60000);
@@ -45,7 +45,6 @@ angular.module('starter.services', [])
     reverseGeocode: reverseGeocode
   }
 })
-
 
 .factory('Events', function($http, endpoint, $q, host, $interval, Location, $filter) {
 
