@@ -28,20 +28,14 @@ angular.module('starter.controllers', [])
     var marker = new google.maps.Marker({
       map: $scope.map,
       animation: google.maps.Animation.DROP,
-      position: latLng/*,
-      icon: {
-        url: 'img/red-circle-128.png',
-        size: new google.maps.Size(32, 32),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(0, 0)
-      }*/
+      position: latLng
     });   
     markers.push(marker);
 
     var content = '<h4>'+ event.roomname+'</h4>'+
-        '<p>By '+ $filter('date')(event.endtime, 'EEE, d MMM h:mm a') + '<br/>(' + $filter('timeleft')(event.endtime) +' left)</p>'+
-        '<p>'+event.location + '<br/>' + event.distance + ' km away</p>'+
         '<p>'+event.foodtype+'<br/>For ' + event.servings + '</p>'+
+        '<p>'+event.location + '<br/>' + event.distance + ' km away</p>'+
+        '<p>By '+ $filter('date')(event.endtime, 'EEE, d MMM h:mm a') + '<br/>(' + $filter('timeleft')(event.endtime) +' left)</p>'+
         '<p><a href="#/event/'+event.id+'">More details</a></p>';
     var infoWindow = new google.maps.InfoWindow({content: content});
     infoWindows.push(infoWindow);
@@ -67,25 +61,20 @@ angular.module('starter.controllers', [])
     };
 
     $scope.map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    var GeoMarker = new GeolocationMarker($scope.map);
   };
 
   var initMapWithLocation = function (location) {
+    for(var i=0; i<markers.length; i++){
+      markers[i].setMap(null);
+    }
+    markers.length = 0;
+      
     $scope.map.setCenter(location);
 
-    /*var marker = new google.maps.Marker({
-        map: $scope.map,
-        position: location,
-        icon: {
-            url: 'img/blue-circle.png',
-            size: new google.maps.Size(32, 32),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(0, 0)
-        }
-    });*/
-    var GeoMarker = new GeolocationMarker($scope.map);
-
     $ionicLoading.show({template: 'Finding food near you...'});
-    Events.find(location.lat(), location.lng(), 30000, true).then(
+    Events.find(location.lat(), location.lng(), 30000).then(
       function(data){
         $ionicLoading.hide();
         events = data.events;
@@ -97,6 +86,10 @@ angular.module('starter.controllers', [])
       }
     );
   };
+    
+  $scope.refresh = function(){
+      initMap();
+  }
  
   var initMap = function() {
       // create a default Singapore map

@@ -143,7 +143,7 @@ angular.module('starter.services', [])
     }
 
   return {
-    find: function(latitude,longitude,radius,currentLocation){
+    find: function(latitude,longitude,radius){
       return $http({
         method: 'POST',
         url: endpoint+'/get-events',
@@ -164,9 +164,6 @@ angular.module('starter.services', [])
             events = response.data.events;
             for(var i=0;i<events.length;i++){
               initEvent(events[i]);
-              if(!currentLocation){
-                event.distance = undefined;
-              }
                 
               var match = getGoingEvent(events[i].id);
               if (match != null) {
