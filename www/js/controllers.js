@@ -142,7 +142,10 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading, $ionicPopup) {
+.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading, $ionicPopup, AuthService) {
+    
+    $scope.username = AuthService.user().username;
+    
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
       viewData.enableBack = true;
     }); 

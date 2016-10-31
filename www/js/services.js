@@ -200,10 +200,12 @@ angular.module('starter.services', [])
             if(response.data && response.data.success){
                 event.username = localStorage.getItem("username");
                 event.id = response.data.id;
+                event.isUserGoing = true;
                 if(!events){
                   events = [];
                 }
                 events.push(event);
+                updateGoingEvent(event);
                 return response.data;
             }
             return {success:false};
