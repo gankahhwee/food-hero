@@ -48,7 +48,7 @@ angular.module('starter.controllers', [])
     }
   }
   
-  var initMap = function(targetLatLng){
+  var initMapWithLocation = function(targetLatLng){
     var mapOptions = {
       center: targetLatLng,
       zoom: 16,
@@ -83,38 +83,46 @@ angular.module('starter.controllers', [])
     );
   }
  
-  Location.getCurrentPosition().then(function(position){
-    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-    initMap(latLng);
-    
-  }, function(message){
-    $ionicLoading.hide();
-    $scope.showPopup = function() {
-      $scope.data = {};
-      var myPopup = $ionicPopup.show({
-        title: 'Enter your location',
-        subTitle: 'Oooops! We are not able to retrieve your current location. Can you let us know where you are?',
-        template: '<input type="text" ng-model="data.location" placeholder="Address or building name">',
-        scope: $scope,
-        buttons: [
-          { text: 'Try again' },
-          {
-            text: 'Use the location above',
-            type: 'button-positive',
-            onTap: function(e) {
-              if (!$scope.data.location) {
-                e.preventDefault();
-              } else {
-                Location.geocodeAddress($scope.data.location, function(){
-                  initMap(results[0].geometry.location);
-                });
+  var initMap = function() {
+      Location.getCurrentPosition().then(function(position){
+        var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        initMapWithLocation(latLng);
+
+      }, function(message){
+        $ionicLoading.hide();
+
+          $scope.data = {};
+          var myPopup = $ionicPopup.show({
+            title: 'We cannot locate you. Please turn on location service. Otherwise, let us know where you are.',
+            template: '<input type="text" ng-model="data.location" placeholder="Postal code, address or building name">',
+            scope: $scope,
+            buttons: [
+              {
+                  text: 'Locate again',
+                  type: 'button-positive',
+                  onTap: function(e) {
+                      $ionicLoading.show({template: 'Locating you...'});
+                      initMap();
+                  }
+            },
+              {
+                text: "I'm here",
+                onTap: function(e) {
+                  if (!$scope.data.location) {
+                    e.preventDefault();
+                  } else {
+                    Location.geocodeAddress($scope.data.location, function(results){
+                      initMapWithLocation(results[0].geometry.location);
+                    });
+                  }
+                }
               }
-            }
-          }
-        ]
+            ]
+          });
       });
-     };
-  })
+  };
+    
+  initMap();
   
   $scope.shareFood = function(){
     $location.path("/post");
@@ -179,6 +187,8 @@ angular.module('starter.controllers', [])
       map: map,
       position: latLng
     });
+    $scope.event.latitude = position.coords.latitude;
+    $scope.event.longitude = position.coords.longitude;
     Location.reverseGeocode(latLng, function(results){
       $timeout(function(){
         $scope.event.location = results[0].formatted_address;
@@ -208,7 +218,7 @@ angular.module('starter.controllers', [])
   };
   $scope.post = function(){
     $ionicLoading.show({
-      template: 'Loading...'
+      template: 'Posting...'
     })
     for(attr in $scope.event){
       data.append(attr, $scope.event[attr]);
@@ -313,12 +323,8 @@ function($scope, AuthService, $ionicLoading, $ionicPopup, $state, $q) {
     $scope.user = AuthService.user();
     
     $scope.logout = function() {
-      if (typeof(Storage) != "undefined") {
-          localStorage.removeItem("token");
-      }
-      AuthService.logoutGG();
-      // to be completed
-      
-      $state.go('login');
-  }
+        AuthService.logout().then(function() {
+            $state.go('login');
+        });
+    }
 }]);

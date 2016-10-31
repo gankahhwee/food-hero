@@ -1,8 +1,8 @@
 angular.module('starter.services', [])
 
 .value('host', 'http://foodhero.me:8000')
-//.value('endpoint', 'http://foodhero.me:8000')
-.value('endpoint', 'http://localhost:8100/api')
+.value('endpoint', 'http://foodhero.me:8000')
+//.value('endpoint', 'http://localhost:8100/api')
 
 .factory('Location', function($cordovaGeolocation, $q, $timeout){
   var currentLocation,
@@ -205,9 +205,6 @@ angular.module('starter.services', [])
     },
       
     add: function(data, event){
-      return Location.getCurrentPosition().then(function(position){
-        data.append("latitude", position.coords.latitude);
-        data.append("longitude", position.coords.longitude);
         data.append("username", localStorage.getItem("username"));
             
         return $http({
@@ -221,6 +218,7 @@ angular.module('starter.services', [])
         }).then(
           function(response){
             if(response.data && response.data.success){
+                event.username = localStorage.getItem("username");
                 event.id = response.data.id;
                 events.push(event);
                 return response.data;
@@ -230,8 +228,7 @@ angular.module('starter.services', [])
           function(response){
             return {success:false};
           }
-        ) 
-      })
+        ); 
     },
       
     get: function(eventId) {
@@ -346,9 +343,8 @@ angular.module('starter.services', [])
         localStorage.setItem("mealsSaved", responseData.mealsSaved);
         localStorage.setItem("token", responseData.token);
     }
-
-  return {
-      
+    
+  var functions = {
     user: function(){
       if(user){
           return user;
@@ -602,11 +598,23 @@ angular.module('starter.services', [])
     },
       
     logoutGG: function() {
-        var deferred = $q.defer;
+        var deferred = $q.defer();
         window.plugins.googleplus.logout(function(msg) {
             deferred.resolve(msg);
         });
         return deferred.promise;
+    },
+      
+    logout: function() {
+        if (typeof(Storage) != "undefined") {
+            localStorage.removeItem("token");
+        }
+        
+        user = undefined;
+  
+        functions.logoutGG();
+        
+        return $q.when();
     },
       
     meals: function(){
@@ -633,4 +641,6 @@ angular.module('starter.services', [])
       )
     }
   };
+
+  return functions;
 }]);
