@@ -46,19 +46,17 @@ angular.module('starter.controllers', [])
     var infoWindow = new google.maps.InfoWindow({content: content});
     infoWindows.push(infoWindow);
 
-    if(event){
-      marker.addListener('click', function () {
-        for(var i=0;i<infoWindows.length;i++){
-          infoWindows[i].close();
-        }
-        infoWindow.addListener('click', function(){
-          $timeout(function(){
-            $location.path("/event/"+event.id);
-          });
+    marker.addListener('click', function () {
+      for(var i=0;i<infoWindows.length;i++){
+        infoWindows[i].close();
+      }
+      infoWindow.addListener('click', function(){
+        $timeout(function(){
+          $location.path("/event/"+event.id);
         });
-        infoWindow.open($scope.map, marker);
       });
-    }
+      infoWindow.open($scope.map, marker);
+    });
   }
   
   var createMap = function(center){
@@ -148,7 +146,7 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading) {
+.controller('EventCtrl', function($scope, $stateParams, Events, $ionicLoading, $ionicPopup) {
     $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
       viewData.enableBack = true;
     }); 
@@ -194,12 +192,22 @@ angular.module('starter.controllers', [])
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
+  
+  $scope.foodTypes = [
+    {value:'Halal'},
+    {value:'Vegetarian'},
+    //{value:'Vegetarian-friendly'},
+    {value:'Vegan'}
+    //,{value:'Vegan-friendly'}
+  ];
     
   // set default end time to be +2 hours
   var endtime = new Date();
   endtime.setTime(endtime.getTime() + (2*60*60*1000));
     
   $scope.event = {
+      foodtype: '',
+      additionalInfo: '',
       endtime: $filter('date')(endtime, 'yyyy-MM-dd HH:mm')
   };
   $scope.enddate = new Date($scope.event.endtime.substr(0,10) + ' 00:00');
@@ -217,8 +225,8 @@ angular.module('starter.controllers', [])
       });
     });
   }
-    
-  Location.getCurrentPosition().then(function(latLng){
+  
+  var initMap = function(latLng){
     setEventLatLng(latLng);
       
     var map = new google.maps.Map(document.getElementById("event-post-map"), {
@@ -238,6 +246,14 @@ angular.module('starter.controllers', [])
           position: markerLatLng
         });
         marker.addListener('dragend', function(event){setEventLatLng(event.latLng)});
+        
+        var infoWindow = new google.maps.InfoWindow({
+          content: 'You can drag me'
+        });
+        infoWindow.open(map, marker);
+        $timeout(function(){
+           infoWindow.close(); 
+        }, 4000);
     }
     setMarker(latLng);
       
@@ -251,9 +267,14 @@ angular.module('starter.controllers', [])
         setMarker(results[0].geometry.location);
       });
     };
-  }, function(message){
-      //TODO
-  });
+  }
+    
+  Location.getCurrentPosition().then(
+    initMap, 
+    function(message){
+      initMap(Location.getDefaultLocation())
+    }
+  );
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
@@ -269,6 +290,20 @@ angular.module('starter.controllers', [])
     $ionicLoading.show({
       template: 'Posting...'
     });
+
+    // process food types
+    var combinedFoodtype = '';
+    for(var i=0; i<$scope.foodTypes.length; i++){
+        if(!$scope.foodTypes[i].selected){
+            combinedFoodtype += 'Not ';
+        }
+        combinedFoodtype += $scope.foodTypes[i].value + ', ';
+    }
+    if($scope.event.foodtype.trim().length > 0){
+        $scope.event.foodtype = combinedFoodtype + $scope.event.foodtype;
+    } else {
+        $scope.event.foodtype = combinedFoodtype.substr( 0, combinedFoodtype.length-2 );
+    }
 
     for(attr in $scope.event){
       if (attr == 'endtime')
