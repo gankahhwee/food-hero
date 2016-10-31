@@ -5,24 +5,23 @@
         <span class="input-label" for="roomname">Title</span>
         <input type="text" name="roomname" ng-model="event.roomname" placeholder="Enter title">
       </label>
-      <div class="item item-divider">Location</div>
-      <!--<ion-checkbox ng-model="currentPosition" ng-change="checkLocation(currentPosition)">My Current Position</ion-checkbox>-->
-      <label class="item item-input">
-        <input type="text" name="location" ng-model="event.location" placeholder="Postal code, address or building name"
-               ng-enter="geocode(event.location)" ng-blur="geocode(event.location)">
+      <label class="item item-input item-stacked-label">
+          <span class="input-label" for="contact">Location</span>
+          <input type="text" name="location" ng-model="event.location"
+                 placeholder="Postal code, address or building name"
+                 ng-enter="geocode(event.location)" ng-blur="geocode(event.location)">
       </label>
+      <!--<ion-checkbox ng-model="currentPosition" ng-change="checkLocation(currentPosition)">My Current Position</ion-checkbox>-->
       <div id="event-post-map" class="map"></div>
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="contact">Contact / Email</span>
         <input name="contact" type="text" ng-model="event.contact" placeholder="How can you be contacted?">
       </label>
         
-      <div class="item item-divider"></div>
-        <label class="item item-input item-stacked-label">
-          <span class="input-label" for="foodtype">Photo</span>
-          <input type="file" name="allImages" ng-files="getTheFiles($files)"> 
-        </label>
-      <div class="item item-divider"></div>
+       <label class="item item-input item-stacked-label">
+         <span class="input-label" for="allImages">Photo</span><br/>
+         <input type="file" name="allImages" ng-files="getTheFiles($files)"> 
+      </label>
         
       <label class="item item-input item-stacked-label">
         <span class="input-label" for="foodtype">Food Type</span>
@@ -40,9 +39,11 @@
         <span class="input-label" for="additionalInfo">Additional information</span>
         <input name="additionalInfo" type="text" ng-model="event.additionalInfo" placeholder="Anything else that you want to let others know?">
       </label>
-      <button class="button button-full button-positive" ng-click="post()">
-        Save
-      </button>
+      <div class="padding-horizontal">
+          <button class="button button-full button-positive" ng-click="post()">
+            Save
+          </button>
+      </div>
     </div>
   </ion-content>
 </ion-view>
