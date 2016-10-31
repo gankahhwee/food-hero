@@ -1,0 +1,1 @@
+This folder is for JavaScript libraries that are copied manually (not installed via bower).
