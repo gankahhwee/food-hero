@@ -16,7 +16,7 @@ angular.module('starter.controllers', [])
     authCheck();
 })
 
-.controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout, $ionicLoading, $ionicPopup) {
+.controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout, $ionicLoading, $ionicPopup, $filter) {
   $ionicLoading.show({template: 'Loading...'});
   var options = {timeout: 10000, enableHighAccuracy: true},
       markers = [],
@@ -32,18 +32,25 @@ angular.module('starter.controllers', [])
     });   
     markers.push(marker);
 
-    /*var infoWindow = new google.maps.InfoWindow({content: content});
-    infoWindows.push(infoWindow);*/
+    var content = '<h4>'+ event.roomname+'</h4>'+
+        '<p>By '+ $filter('date')(event.endtime, 'EEE, d MMM h:m a') + '<br/>(' + event.timeLeftDisplay+' left)</p>'+
+        '<p>'+event.location + '<br/>' + event.distance + ' km away</p>'+
+        '<p>'+event.foodtype+'<br/>For ' + event.servings + '</p>'+
+        '<p><a href="#/event/'+event.id+'">More details</a></p>';
+    var infoWindow = new google.maps.InfoWindow({content: content});
+    infoWindows.push(infoWindow);
 
     if(event){
       marker.addListener('click', function () {
-        /*for(var i=0;i<infoWindows.length;i++){
+        for(var i=0;i<infoWindows.length;i++){
           infoWindows[i].close();
         }
-        infoWindow.open($scope.map, marker);*/
-        $timeout(function(){
-          $location.path("/event/"+event.id);
+        infoWindow.addListener('click', function(){
+          $timeout(function(){
+            $location.path("/event/"+event.id);
+          });
         });
+        infoWindow.open($scope.map, marker);
       });
     }
   }
