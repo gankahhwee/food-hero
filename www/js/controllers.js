@@ -200,12 +200,18 @@ angular.module('starter.controllers', [])
     
   $scope.event = {
       foodtype: '',
-      additionalInfo: '',
-      endtime: $filter('date')(endtime, 'yyyy-MM-dd HH:mm')
+      additionalInfo: ''
   };
-  $scope.enddate = $scope.event.endtime.substr(0,10);
-  $scope.endtime = $scope.event.endtime.substr(11);
-    
+  
+  $scope.enddate = new Date($filter('date')(endtime, 'MM-dd-yyyy') + ' 00:00');
+  $scope.endtime = new Date('1-1-1970 ' + $filter('date')(endtime, 'hh:mm'));
+
+  var updateEventEndtime = function(enddate, endtime) {
+      if (typeof(enddate) != 'undefined' && typeof(endtime) != 'undefined') 
+        $scope.event.endtime = new Date(enddate.toDateString() + ' ' + endtime.toTimeString());
+  }
+  updateEventEndtime($scope.enddate, $scope.endtime);
+
   var setEventLatLng = function(latLng){
     $scope.event.latitude = latLng.lat();
     $scope.event.longitude = latLng.lng();
@@ -274,13 +280,14 @@ angular.module('starter.controllers', [])
       data.append("allImages[0]", value);
     });
   };
+  
+  $scope.updateEventEndtime = updateEventEndtime;
+
   $scope.post = function(){
     $ionicLoading.show({
       template: 'Posting...'
     });
-      
-    $scope.event.endtime = new Date($scope.event.endtime);
-      
+
     // process food types
     var combinedFoodtype = '';
     for(var i=0; i<$scope.foodTypes.length; i++){
@@ -294,6 +301,7 @@ angular.module('starter.controllers', [])
     } else {
         $scope.event.foodtype = combinedFoodtype.substr( 0, combinedFoodtype.length-2 );
     }
+
     for(attr in $scope.event){
       if (attr == 'endtime')
             data.append(attr, $scope.event[attr].toISOString());
