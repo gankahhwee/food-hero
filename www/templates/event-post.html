@@ -44,12 +44,15 @@
           <div class="item item-divider"></div>
             
           <label class="item item-input item-stacked-label">
-            <div class="input-label">Ends on</div><br/>
-            <input type="date" ng-model="enddate"
-                   style="width: 50%; display: inline-block;"
+            <span class="input-label" for"enddate">Ends on</span><br/>
+            <input required name="enddate" type="date" ng-model="enddate"
+                   style="display: inline-block;"
                    ng-change="updateEventEndtime(enddate, endtime)">
-            <input type="time" ng-model="endtime"
-                   style="width: 50%; display: inline-block;"
+          </label>
+          <label class="item item-input item-stacked-label">
+            <span class="input-label" for="endtime">At</span><br/>
+            <input required name="endtime" type="time" ng-model="endtime"
+                   style="display: inline-block;"
                    ng-change="updateEventEndtime(enddate, endtime)">
           </label>
             
