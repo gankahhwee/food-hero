@@ -17,7 +17,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('MapCtrl', function($scope, $state, Events, Location, $location, $timeout, $ionicLoading, $ionicPopup, $filter) {
-  $ionicLoading.show({template: 'Loading...'});
+  $ionicLoading.show({template: 'Loading map...'});
   var options = {timeout: 10000, enableHighAccuracy: true},
       markers = [],
       infoWindows = [],
@@ -61,26 +61,32 @@ angular.module('starter.controllers', [])
     }
   }
   
-  var initMapWithLocation = function(targetLatLng){
+  var createMap = function(center){
     var mapOptions = {
-      center: targetLatLng,
+      center: center,
       zoom: 16,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
     $scope.map = new google.maps.Map(document.getElementById("map"), mapOptions);
+  };
+
+  var initMapWithLocation = function (location) {
+    $scope.map.setCenter(location);
+
     var marker = new google.maps.Marker({
-      map: $scope.map,
-      position: targetLatLng,
-      icon: {
-        url: 'img/blue-circle.png',
-        size: new google.maps.Size(32, 32),
-        origin: new google.maps.Point(0, 0),
-        anchor: new google.maps.Point(0, 0)
-      }
+        map: $scope.map,
+        position: location,
+        icon: {
+            url: 'img/blue-circle.png',
+            size: new google.maps.Size(32, 32),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 0)
+        }
     });
-      
-    Events.find(targetLatLng.lat(), targetLatLng.lng(), 30000, true).then(
+
+    $ionicLoading.show({template: 'Finding food near you...'});
+    Events.find(location.lat(), location.lng(), 30000, true).then(
       function(data){
         $ionicLoading.hide();
         events = data.events;
@@ -91,10 +97,11 @@ angular.module('starter.controllers', [])
         }
       }
     );
-  }
+  };
  
   var initMap = function() {
-      initMapWithLocation(new google.maps.LatLng(1.2839384,103.8492658));
+      // create a default Singapore map
+      createMap(Location.getDefaultLocation());
       
       $ionicLoading.show({template: 'Locating you...'});
       Location.getCurrentPosition().then(function(latLng){
@@ -123,7 +130,7 @@ angular.module('starter.controllers', [])
                     e.preventDefault();
                   } else {
                     Location.geocodeAddress($scope.data.location, function(results){
-                        $scope.map.setCenter(results[0].geometry.location);
+                        initMapWithLocation(results[0].geometry.location);
                     });
                   }
                 }
