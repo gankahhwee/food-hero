@@ -362,7 +362,7 @@ angular.module('starter.services', [])
         if(localStorage.getItem("token")){
           user = {
             username: localStorage.getItem("username"),
-            meanlsShared: parseInt(localStorage.getItem("mealsShared")),
+            mealsShared: parseInt(localStorage.getItem("mealsShared")),
             mealsSaved: parseInt(localStorage.getItem("mealsSaved")),
             token: localStorage.getItem("token")
           };
