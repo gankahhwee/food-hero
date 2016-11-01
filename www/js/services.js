@@ -60,7 +60,7 @@ angular.module('starter.services', [])
 
   var events,
       goingEvents,
-      hasNewEvents;
+      newEvent;
     
   var initEvent = function(event){
     // distance
@@ -175,7 +175,7 @@ angular.module('starter.services', [])
                 updateGoingEvent(events[i]);
               }
             }
-            hasNewEvents = false;
+            newEventId = false;
             return events;
           }
         }
@@ -207,7 +207,7 @@ angular.module('starter.services', [])
                   events = [];
                 }
                 events.push(event);
-                hasNewEvents = true;
+                newEvent = event;
                 updateGoingEvent(event);
                 return response.data;
             }
@@ -219,7 +219,7 @@ angular.module('starter.services', [])
         ); 
     },
     
-    hasNewEvents: function(){ return hasNewEvents; },
+    newEvent: function(){ return newEvent; },
       
     get: function(eventId) {
       if(events){
