@@ -25,6 +25,8 @@ angular.module('starter.controllers', [])
       init;
     
   $scope.$on("$ionicView.enter", function(event, data){
+    refreshMap();
+    
     // the map view is cached so we need to load new event if there is any
     if(events){
         var newEvent = Events.newEvent();
@@ -33,6 +35,14 @@ angular.module('starter.controllers', [])
         }
     }
   });
+    
+  // sometimes the map only show one top left tile!
+  // this function is to fix that issue
+  // to be triggered
+  var refreshMap = function() {
+    if (typeof($scope.map) != 'undefined' && $scope.map != null)
+      google.maps.event.trigger($scope.map, 'resize');
+  }
     
   var addEventMarker = function(latLng, event){
     var marker = new google.maps.Marker({
@@ -85,7 +95,7 @@ angular.module('starter.controllers', [])
     }
     markers.length = 0;
       
-    $scope.map.setCenter(location);
+    $scope.map.panTo(location);
 
     $ionicLoading.show({template: 'Finding food near you...'});
     return Events.find(location.lat(), location.lng(), 30000).then(
@@ -198,7 +208,7 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout, $filter) {
+.controller('PostEventCtrl', function($scope, Events, $ionicLoading, Location, $location, $timeout, $filter, $state) {
   $scope.$on('$ionicView.beforeEnter', function (event, viewData) {
     viewData.enableBack = true;
   }); 
@@ -279,7 +289,7 @@ angular.module('starter.controllers', [])
         console.log(results);
         $scope.event.latitude = results[0].geometry.location.lat();
         $scope.event.longitude = results[0].geometry.location.lng();
-        map.setCenter(results[0].geometry.location);
+        map.panTo(results[0].geometry.location);
         setMarker(results[0].geometry.location);
       });
     };
@@ -333,7 +343,7 @@ angular.module('starter.controllers', [])
     Events.add(data, $scope.event).then(function(data){
       $ionicLoading.hide();
       if(data.id){
-        $location.path("/tab/map");
+          $state.go('tab.map');
       }
     });
   }
