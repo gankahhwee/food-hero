@@ -291,7 +291,7 @@ angular.module('starter.controllers', [])
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
-      data.append("allImages", value);
+      data.append("file", value);
     });
   };
   
