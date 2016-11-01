@@ -328,7 +328,8 @@ angular.module('starter.services', [])
 .factory('AuthService', ['$http', 'endpoint', '$cordovaOauth', '$q', 'Events', function($http, endpoint, $cordovaOauth, $q, Events) {
   var user;
     
-    function initUser(responseData) {
+    function initUser(responseData, username) {
+        localStorage.setItem("username", username);
         localStorage.setItem("mealsShared", responseData.mealsShared);
         localStorage.setItem("mealsSaved", responseData.mealsSaved);
         localStorage.setItem("token", responseData.token);
@@ -365,7 +366,6 @@ angular.module('starter.services', [])
     },
       
     login: function(username, password) {
-      localStorage.setItem("username", username);
       return $http({
         method: 'POST',
         url: endpoint+'/login',
@@ -383,7 +383,7 @@ angular.module('starter.services', [])
               return $q.reject('Unauthorized');
           }
           if(response.data && response.data.success){
-              initUser(response.data);
+              initUser(response.data, username);
           } else {
               return $q.reject(response.data ? response.data.error : '');
           }
@@ -465,7 +465,9 @@ angular.module('starter.services', [])
                 return $q.reject('Unauthorized');
             }
             if (response.data && response.data.success){
-                initUser(response.data);
+                var username = params.user_id;
+                console.log(username);
+                initUser(response.data, username);
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }
@@ -575,7 +577,9 @@ angular.module('starter.services', [])
                 return $q.reject('Unauthorized');
             }
             if (response.data /*&& response.data.success*/){
-                initUser(response.data);
+                var username = params.email.split('@')[0];
+                console.log(username);
+                initUser(response.data, username);
               } else {
                   return $q.reject(response.data ? response.data.error : '');
               }
@@ -598,6 +602,9 @@ angular.module('starter.services', [])
     logout: function() {
         if (typeof(Storage) != "undefined") {
             localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("mealsShared");
+            localStorage.removeItem("mealsSaved");
         }
         
         user = undefined;
