@@ -25,9 +25,11 @@ angular.module('starter.controllers', [])
       init;
     
   $scope.$on("$ionicView.enter", function(event, data){
+    // the map view is cached so we need to load new event if there is any
     if(events){
-        if(Events.hasNewEvents()){
-            initMap();
+        var newEvent = Events.newEvent();
+        if(newEvent){
+            initMapWithLocation(new google.maps.LatLng(newEvent.latitude, newEvent.longitude));
         }
     }
   });
@@ -85,7 +87,7 @@ angular.module('starter.controllers', [])
     $scope.map.setCenter(location);
 
     $ionicLoading.show({template: 'Finding food near you...'});
-    Events.find(location.lat(), location.lng(), 30000).then(
+    return Events.find(location.lat(), location.lng(), 30000).then(
       function(data){
         $ionicLoading.hide();
         events = data;
@@ -107,8 +109,8 @@ angular.module('starter.controllers', [])
       createMap(Location.getDefaultLocation());
       
       $ionicLoading.show({template: 'Locating you...'});
-      Location.getCurrentPosition(reload).then(function(latLng){
-        initMapWithLocation(latLng);
+      return Location.getCurrentPosition(reload).then(function(latLng){
+        return initMapWithLocation(latLng);
 
       }, function(message){
         $ionicLoading.hide();
@@ -218,7 +220,7 @@ angular.module('starter.controllers', [])
   };
   
   $scope.enddate = new Date($filter('date')(endtime, 'MM-dd-yyyy') + ' 00:00');
-  $scope.endtime = new Date('1-1-1970 ' + $filter('date')(endtime, 'hh:mm'));
+  $scope.endtime = new Date('1-1-1970 ' + $filter('date')(endtime, 'HH:mm'));
 
   var updateEventEndtime = function(enddate, endtime) {
       if (typeof(enddate) != 'undefined' && typeof(endtime) != 'undefined') 
@@ -231,7 +233,7 @@ angular.module('starter.controllers', [])
     $scope.event.longitude = latLng.lng();
       
     Location.reverseGeocode(latLng, function(results){
-      console.log("reverse geocoding results");
+      console.log("reverse geocoding results from: " + latLng.lat() + ", " + latLng.lng());
       console.log(results);
       $timeout(function(){
         $scope.event.location = results[0].formatted_address;
@@ -272,7 +274,7 @@ angular.module('starter.controllers', [])
       
     $scope.geocode = function(address){
       Location.geocodeAddress(address, function(results){
-        console.log("geocoding results");
+        console.log("geocoding results from: " + address);
         console.log(results);
         $scope.event.latitude = results[0].geometry.location.lat();
         $scope.event.longitude = results[0].geometry.location.lng();
@@ -330,7 +332,7 @@ angular.module('starter.controllers', [])
     Events.add(data, $scope.event).then(function(data){
       $ionicLoading.hide();
       if(data.id){
-        $location.path("/event/"+data.id);
+        $location.path("/tab/map");
       }
     });
   }
