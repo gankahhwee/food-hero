@@ -24,6 +24,14 @@ angular.module('starter.controllers', [])
       events, 
       init;
     
+  $scope.$on("$ionicView.enter", function(event, data){
+    if(events){
+        if(Events.hasNewEvents()){
+            initMap();
+        }
+    }
+  });
+    
   var addEventMarker = function(latLng, event){
     var marker = new google.maps.Marker({
       map: $scope.map,
@@ -80,10 +88,10 @@ angular.module('starter.controllers', [])
     Events.find(location.lat(), location.lng(), 30000).then(
       function(data){
         $ionicLoading.hide();
-        events = data.events;
-        for(var i=0;i<data.events.length;i++){
-          var event = data.events[i];
-          var latLng = new google.maps.LatLng(data.events[i].latitude, data.events[i].longitude);
+        events = data;
+        for(var i=0;i<events.length;i++){
+          var event = events[i];
+          var latLng = new google.maps.LatLng(events[i].latitude, events[i].longitude);
           addEventMarker(latLng, event);
         }
       }
@@ -283,7 +291,7 @@ angular.module('starter.controllers', [])
   var data = new FormData();
   $scope.getTheFiles = function ($files) {
     angular.forEach($files, function (value, key) {
-      data.append("allImages[0]", value);
+      data.append("file", value);
     });
   };
   
@@ -295,12 +303,17 @@ angular.module('starter.controllers', [])
     });
 
     // process food types
-    var combinedFoodtype = '';
-    for(var i=0; i<$scope.foodTypes.length; i++){
-        if(!$scope.foodTypes[i].selected){
+    var selected = $filter('filter')($scope.foodTypes,{selected:true});
+    var combinedFoodtype = '',
+        foodTypes = $scope.foodTypes;
+    if(selected.length > 0){
+        foodTypes = selected;
+    }
+    for(var i=0; i<foodTypes.length; i++){
+        if(!foodTypes[i].selected){
             combinedFoodtype += 'Not ';
         }
-        combinedFoodtype += $scope.foodTypes[i].value + ', ';
+        combinedFoodtype += foodTypes[i].value + ', ';
     }
     if($scope.event.foodtype.trim().length > 0){
         $scope.event.foodtype = combinedFoodtype + $scope.event.foodtype;
