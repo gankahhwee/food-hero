@@ -220,6 +220,7 @@ angular.module('starter.services', [])
     },
     
     newEvent: function(){ return newEvent; },
+    clearNewEvent: function() { newEvent = undefined },
       
     get: function(eventId) {
       if(events){

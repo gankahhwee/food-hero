@@ -32,6 +32,7 @@ angular.module('starter.controllers', [])
         var newEvent = Events.newEvent();
         if(newEvent){
             initMapWithLocation(new google.maps.LatLng(newEvent.latitude, newEvent.longitude));
+            Events.clearNewEvent();
         }
     }
   });
