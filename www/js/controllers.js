@@ -68,7 +68,8 @@ angular.module('starter.controllers', [])
     var mapOptions = {
       center: center,
       zoom: 16,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: false
     };
 
     $scope.map = new google.maps.Map(document.getElementById("map"), mapOptions);
