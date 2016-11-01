@@ -59,7 +59,8 @@ angular.module('starter.services', [])
 .factory('Events', function($http, endpoint, $q, host, $interval, Location, $filter) {
 
   var events,
-      goingEvents;
+      goingEvents,
+      hasNewEvents;
     
   var initEvent = function(event){
     // distance
@@ -174,7 +175,8 @@ angular.module('starter.services', [])
                 updateGoingEvent(events[i]);
               }
             }
-            return {success:true, events:events};
+            hasNewEvents = false;
+            return events;
           }
         }
       )
@@ -205,6 +207,7 @@ angular.module('starter.services', [])
                   events = [];
                 }
                 events.push(event);
+                hasNewEvents = true;
                 updateGoingEvent(event);
                 return response.data;
             }
@@ -215,6 +218,8 @@ angular.module('starter.services', [])
           }
         ); 
     },
+    
+    hasNewEvents: function(){ return hasNewEvents; },
       
     get: function(eventId) {
       if(events){
