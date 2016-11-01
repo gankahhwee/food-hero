@@ -62,6 +62,9 @@ angular.module('starter.controllers', [])
   }
   
   var createMap = function(center){
+    if (typeof($scope.map) != 'undefined' && $scope.map != null)
+        return;
+
     var mapOptions = {
       center: center,
       zoom: 16,
